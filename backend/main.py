@@ -1,0 +1,79 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from openai import OpenAI
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key) if api_key else None
+
+app = FastAPI(title="Quant AI Backend")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class ChatRequest(BaseModel):
+    message: str
+    mode: str = "General AI Chat"
+
+def demo_response(message: str, mode: str):
+    return f"""
+Quant AI Demo Response
+
+Mode: {mode}
+
+Your message:
+{message}
+
+The frontend is successfully connected to the backend.
+
+Real OpenAI responses will activate once your API billing/quota is restored.
+"""
+
+@app.get("/")
+def home():
+    return {"status": "Quant AI backend is running"}
+
+@app.post("/chat")
+def chat(request: ChatRequest):
+    try:
+        if client is None:
+            return {"response": demo_response(request.message, request.mode)}
+
+        system_prompt = f"""
+You are Quant AI, an advanced AI assistant for mathematics, science, engineering,
+finance, economics, statistics, data analysis, research, coding, and education.
+
+Current mode: {request.mode}
+
+Support SAT, ACT, GRE, GMAT, LSAT, MCAT, Olympiads, AP Exams, WAEC, JAMB,
+IGCSE, A-Level, mathematics, finance, economics, statistics, physics,
+chemistry, engineering, computer science, data science, research, file analysis,
+and stock analysis.
+
+Be rigorous, clear, educational, and practical.
+"""
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": request.message},
+            ],
+        )
+
+        return {"response": response.choices[0].message.content}
+
+    except Exception as e:
+        return {
+            "response": demo_response(request.message, request.mode)
+            + f"\nBackend note: OpenAI call failed for now: {str(e)}"
+        }
