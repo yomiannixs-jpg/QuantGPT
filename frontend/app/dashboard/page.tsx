@@ -161,12 +161,17 @@ export default function Dashboard() {
 
         <div className="border-t border-gray-800 p-4 lg:p-5 sticky bottom-0 bg-black">
           <div className="flex flex-col lg:flex-row gap-3">
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ask Quant AI anything..."
-              className="flex-1 bg-gray-900 border border-gray-700 rounded-2xl p-4 text-white min-h-[90px]"
-            />
+           <textarea
+  value={message}
+  onChange={(e) => setMessage(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }}
+  placeholder="Ask Quant AI anything..."
+/>
 
             <button
               onClick={sendMessage}
