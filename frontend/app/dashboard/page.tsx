@@ -126,13 +126,6 @@ export default function Dashboard() {
                 >
                   {msg.text}
                 </ReactMarkdown>
-
-                <ReactMarkdown
-                  remarkPlugins={[remarkMath]}
-                  rehypePlugins={[rehypeKatex]}
-                >
-                  {`$$E=mc^2$$`}
-                </ReactMarkdown>
               </div>
             </div>
           ))}
