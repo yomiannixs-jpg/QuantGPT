@@ -105,7 +105,6 @@ export default function Dashboard() {
       <section className="flex-1 flex flex-col min-h-[calc(100vh-230px)] lg:min-h-screen">
         <div className="border-b border-gray-800 p-4 lg:p-5">
           <h2 className="text-xl lg:text-2xl font-semibold">{mode}</h2>
-          <p className="text-green-400 font-bold">LATEX TEST VERSION ACTIVE</p>
           <p className="text-gray-400 text-xs lg:text-sm">Connected through NEXT_PUBLIC_API_URL</p>
         </div>
 
@@ -160,28 +159,31 @@ export default function Dashboard() {
         </div>
 
         <div className="border-t border-gray-800 p-4 lg:p-5 sticky bottom-0 bg-black">
-          <div className="flex flex-col lg:flex-row gap-3">
-           <textarea
-  value={message}
-  onChange={(e) => setMessage(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  }}
-  placeholder="Ask Quant AI anything..."
-/>
+  <div className="w-full flex items-end gap-3 bg-[#1f1f1f] border border-gray-700 rounded-3xl px-4 py-3">
+    <textarea
+      value={message}
+      onChange={(e) => setMessage(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      }}
+      placeholder="Ask Quant AI anything..."
+      rows={2}
+      className="flex-1 w-full bg-transparent text-white placeholder:text-gray-400 outline-none resize-none px-2 py-2 min-h-[40px] max-h-[200px] overflow-y-auto"
+    />
 
-            <button
-              onClick={sendMessage}
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 rounded-2xl px-8 py-4 font-semibold"
-            >
-              {loading ? "Sending..." : "Send"}
-            </button>
-          </div>
-        </div>
+    <button
+      onClick={sendMessage}
+      disabled={loading}
+      className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+    >
+      ↑
+    </button>
+  </div>
+</div>
+
       </section>
     </main>
   );
