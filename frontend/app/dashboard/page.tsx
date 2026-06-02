@@ -1,6 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+
+import "katex/dist/katex.min.css";
 
 const modes = [
   "General AI Chat", "Research Assistant", "Education Engine", "SAT Practice",
@@ -110,8 +114,12 @@ export default function Dashboard() {
               }`}
             >
               <p className="text-sm text-gray-300 mb-2">{msg.role === "user" ? "You" : "Quant AI"}</p>
-              <p className="whitespace-pre-wrap leading-relaxed break-words">{msg.text}</p>
-            </div>
+              <div className="whitespace-pre-wrap leading-relaxed break-words"><ReactMarkdown
+  remarkPlugins={[remarkMath]}
+  rehypePlugins={[rehypeKatex]}
+>
+  {msg.text}
+</ReactMarkdown></div>
           ))}
 
           {loading && (
