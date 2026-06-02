@@ -114,21 +114,26 @@ export default function Dashboard() {
                 msg.role === "user" ? "bg-blue-700 lg:ml-auto" : "bg-gray-900 border border-gray-800"
               }`}
             >
-              <p className="text-sm text-gray-300 mb-2">{msg.role === "user" ? "You" : "Quant AI"}</p>
-              <div className="whitespace-pre-wrap leading-relaxed break-words"><ReactMarkdown
-  remarkPlugins={[remarkMath]}
-  rehypePlugins={[rehypeKatex]}
->
-  {msg.text}
-</ReactMarkdown>
-                
-<ReactMarkdown
-    remarkPlugins={[remarkMath]}
-    rehypePlugins={[rehypeKatex]}
-  >
-    {`$$E=mc^2$$`}
-    </ReactMarkdown>              
+              <p className="text-sm text-gray-300 mb-2">
+                {msg.role === "user" ? "You" : "Quant AI"}
+              </p>
+
+              <div className="whitespace-pre-wrap leading-relaxed break-words">
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {msg.text}
+                </ReactMarkdown>
+
+                <ReactMarkdown
+                  remarkPlugins={[remarkMath]}
+                  rehypePlugins={[rehypeKatex]}
+                >
+                  {`$$E=mc^2$$`}
+                </ReactMarkdown>
               </div>
+            </div>
           ))}
 
           {loading && (
