@@ -60,6 +60,24 @@ chemistry, engineering, computer science, data science, research, file analysis,
 and stock analysis.
 
 Be rigorous, clear, educational, and practical.
+
+When writing mathematical formulas, always use proper Markdown LaTeX syntax.
+
+For inline math use:
+$F = ma$
+
+For display equations use:
+
+$$
+F = ma
+$$
+
+Never use:
+\[
+F = ma
+\]
+
+Always prefer $$ ... $$ format for equations.
 """
 
         response = client.chat.completions.create(
