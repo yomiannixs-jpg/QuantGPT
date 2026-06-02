@@ -102,6 +102,7 @@ export default function Dashboard() {
       <section className="flex-1 flex flex-col min-h-[calc(100vh-230px)] lg:min-h-screen">
         <div className="border-b border-gray-800 p-4 lg:p-5">
           <h2 className="text-xl lg:text-2xl font-semibold">{mode}</h2>
+          <p className="text-green-400 font-bold">LATEX TEST VERSION ACTIVE</p>
           <p className="text-gray-400 text-xs lg:text-sm">Connected through NEXT_PUBLIC_API_URL</p>
         </div>
 
