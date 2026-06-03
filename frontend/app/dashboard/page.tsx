@@ -108,6 +108,7 @@ export default function Dashboard() {
         body: JSON.stringify({
           message: currentMessage,
           mode,
+          history: messages.slice(-12),
         }),
       });
 
