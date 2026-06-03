@@ -14,7 +14,7 @@ const modes = [
   "ACT Practice", "GRE Practice", "GMAT Practice", "LSAT Practice", "MCAT Practice",
   "Olympiads", "AP Exams", "WAEC Practice", "JAMB Practice", "IGCSE Practice",
   "A-Level Practice", "Mathematics", "Pure Mathematics", "Applied Mathematics",
-  "Statistics", "Finance", "Economics", "Physics", "Chemistry", "Engineering",
+  "Statistics", "Finance", "Economics", "Actuarial Science", "Physics", "Chemistry", "Engineering",
   "Computer Science", "Data Science", "AI & Machine Learning", "Practice Questions",
   "File Analysis", "Stock Analysis"
 ];
