@@ -186,7 +186,7 @@ async def upload_file(
         text = ""
         chart_markdown = ""
         stats_report = ""
-        
+        encoded = None
         
         if filename.endswith(".txt"):
             text = content.decode("utf-8", errors="ignore")
