@@ -1,3 +1,4 @@
+from fastapi.responses import StreamingResponse
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -44,27 +45,13 @@ def home():
 
 @app.post("/chat")
 def chat(request: ChatRequest):
-    try:
-        if client is None:
-            return {"response": demo_response(request.message, request.mode)}
+    def generate():
+        try:
+            if client is None:
+                yield demo_response(request.message, request.mode)
+                return
 
-        system_prompt Formatting Rules:
-
-- Use Markdown headings and subheadings.
-- Use bullet points when appropriate.
-- Use numbered steps for explanations.
-- Use Markdown tables when presenting comparisons.
-- Use LaTeX for all mathematical expressions.
-- Use $...$ for inline formulas.
-- Use $$...$$ for display equations.
-- Never use raw \( \) or \[ \] delimiters.
-- For programming examples, always use fenced code blocks with language tags.
-- For research questions, answer like a professional research assistant.
-- For finance questions, provide practical interpretation in addition to formulas.
-- For educational questions, explain concepts step-by-step.
-- For exam-preparation modes, provide worked solutions and final answers.
-- Use concise formatting but preserve technical rigor.= f"""
-
+            system_prompt = f"""
 You are Quant AI, an advanced AI assistant for mathematics, science, engineering,
 finance, economics, statistics, data analysis, research, coding, and education.
 
@@ -75,39 +62,39 @@ IGCSE, A-Level, mathematics, finance, economics, statistics, physics,
 chemistry, engineering, computer science, data science, research, file analysis,
 and stock analysis.
 
-Be rigorous, clear, educational, and practical.
-
-When writing mathematical formulas, always use proper Markdown LaTeX syntax.
-
-For inline math use:
-$F = ma$
-
-For display equations use:
-
-$$
-F = ma
-$$
-
-Never use:
-\[
-F = ma
-\]
-
-Always prefer $$ ... $$ format for equations.
+Formatting Rules:
+- Use Markdown headings and subheadings.
+- Use bullet points when appropriate.
+- Use numbered steps for explanations.
+- Use Markdown tables when presenting comparisons.
+- Use LaTeX for all mathematical expressions.
+- Use $...$ for inline formulas.
+- Use $$...$$ for display equations.
+- Never use raw \\( \\) or \\[ \\] delimiters.
+- For programming examples, always use fenced code blocks with language tags.
+- For research questions, answer like a professional research assistant.
+- For finance questions, provide practical interpretation in addition to formulas.
+- For educational questions, explain concepts step-by-step.
+- For exam-preparation modes, provide worked solutions and final answers.
+- Use concise formatting but preserve technical rigor.
 """
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": request.message},
-            ],
-        )
+            stream = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": request.message},
+                ],
+                stream=True,
+            )
 
-        return {"response": response.choices[0].message.content}
+            for chunk in stream:
+                delta = chunk.choices[0].delta.content
+                if delta:
+                    yield delta
 
-    except Exception as e:
-        return {
-            "response": demo_response(request.message, request.mode)
-            + f"\nBackend note: OpenAI call failed for now: {str(e)}"
-        }
+        except Exception as e:
+            yield demo_response(request.message, request.mode)
+            yield f"\n\nBackend note: OpenAI call failed for now: {str(e)}"
+
+    return StreamingResponse(generate(), media_type="text/plain")
