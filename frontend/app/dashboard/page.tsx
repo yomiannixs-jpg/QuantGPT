@@ -1,260 +1,192 @@
-"use client";
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from openai import OpenAI
+from dotenv import load_dotenv
+import os
 
-import { useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+load_dotenv()
 
-import "katex/dist/katex.min.css";
+api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key) if api_key else None
 
-const modes = [
-  "General AI Chat", "Research Assistant", "Education Engine", "SAT Practice",
-  "ACT Practice", "GRE Practice", "GMAT Practice", "LSAT Practice", "MCAT Practice",
-  "Olympiads", "AP Exams", "WAEC Practice", "JAMB Practice", "IGCSE Practice",
-  "A-Level Practice", "Mathematics", "Pure Mathematics", "Applied Mathematics",
-  "Statistics", "Finance", "Economics", "Actuarial Science", "Physics", "Chemistry", "Engineering",
-  "Computer Science", "Data Science", "AI & Machine Learning", "Practice Questions",
-  "File Analysis", "Stock Analysis"
-];
+app = FastAPI(title="Quant AI Backend")
 
-type Message = { role: "user" | "assistant"; text: string };
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-export default function Dashboard() {
-  const [message, setMessage] = useState("");
-  const [mode, setMode] = useState("General AI Chat");
-  const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", text: "Welcome to Quant AI. Ask anything in mathematics, finance, science, engineering, economics, data analysis, research, coding, exam prep, Olympiads, or stock analysis." }
-  ]);
-  useEffect(() => {
-  const savedMessages = localStorage.getItem("quant-ai-messages");
-  const savedMode = localStorage.getItem("quant-ai-mode");
+class ChatRequest(BaseModel):
+    message: str
+    mode: str = "General AI Chat"
 
-  if (savedMessages) {
-    setMessages(JSON.parse(savedMessages));
-  }
+def demo_response(message: str, mode: str):
+    return f"""
+Quant AI Demo Response
 
-  if (savedMode) {
-    setMode(savedMode);
-  }
-}, []);
+Mode: {mode}
 
-useEffect(() => {
-  localStorage.setItem("quant-ai-messages", JSON.stringify(messages));
-}, [messages]);
+Your message:
+{message}
 
-useEffect(() => {
-  localStorage.setItem("quant-ai-mode", mode);
-}, [mode]);
+The frontend is successfully connected to the backend.
 
-async function sendMessage() {
-  if (!message.trim()) return;
+Real OpenAI responses will activate once your API billing/quota is restored.
+"""
 
-  const currentMessage = message;
+@app.get("/")
+def home():
+    return {"status": "Quant AI backend is running"}
 
-  setMessages((prev) => [
-    ...prev,
-    { role: "user", text: currentMessage },
-    { role: "assistant", text: "" },
-  ]);
-
-  setMessage("");
-  setLoading(true);
-
-  try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-
-    const res = await fetch(`${apiUrl}/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: currentMessage,
-        mode,
-      }),
-    });
-
-    if (!res.body) {
-      throw new Error("No response body");
+def get_mode_instruction(mode: str):
+    mode_instructions = {
+        "General AI Chat": "Act as a highly capable general AI assistant.",
+        "Research Assistant": "Act as an academic research assistant. Structure answers with research motivation, literature positioning, methodology, contribution, limitations, and future research directions.",
+        "Education Engine": "Act as an expert educator. Explain concepts clearly, progressively, and step-by-step.",
+        "SAT Practice": "Act as an SAT tutor. Generate SAT-style questions with answers, explanations, difficulty level, and test-taking strategy.",
+        "ACT Practice": "Act as an ACT tutor. Provide exam-style questions, answers, timing strategies, and concise explanations.",
+        "GRE Practice": "Act as a GRE tutor. Provide quantitative, verbal, and analytical writing support with worked solutions.",
+        "GMAT Practice": "Act as a GMAT tutor. Focus on data sufficiency, quantitative reasoning, verbal reasoning, and business-school exam strategy.",
+        "LSAT Practice": "Act as an LSAT tutor. Focus on logical reasoning, analytical reasoning, reading comprehension, and argument structure.",
+        "MCAT Practice": "Act as an MCAT tutor. Explain biology, chemistry, physics, psychology, and passage-based reasoning.",
+        "Olympiads": "Act as an Olympiad coach. Provide elegant solutions, multiple approaches, and contest-level reasoning.",
+        "AP Exams": "Act as an AP exam tutor. Provide AP-style questions, scoring guidance, and explanations.",
+        "WAEC Practice": "Act as a WAEC tutor. Provide curriculum-aligned questions, answers, and clear explanations.",
+        "JAMB Practice": "Act as a JAMB tutor. Provide Nigerian entrance-exam-style questions, options, answers, and explanations.",
+        "IGCSE Practice": "Act as an IGCSE tutor. Provide syllabus-style questions, mark-scheme-style answers, and explanations.",
+        "A-Level Practice": "Act as an A-Level tutor. Provide structured exam-style responses and worked solutions.",
+        "Mathematics": "Act as a rigorous mathematics tutor. Use step-by-step derivations, clear definitions, and LaTeX for all formulas.",
+        "Pure Mathematics": "Act as a pure mathematics professor. Emphasize proofs, definitions, lemmas, propositions, and rigorous reasoning.",
+        "Applied Mathematics": "Act as an applied mathematics expert. Focus on modeling, differential equations, optimization, numerical methods, and applications.",
+        "Statistics": "Act as a statistics professor. Explain assumptions, estimators, inference, interpretation, and limitations.",
+        "Finance": "Act as a quantitative finance analyst. Include formulas, intuition, risk interpretation, and practical market implications.",
+        "Economics": "Act as an economist. Use models, assumptions, comparative statics, intuition, and policy interpretation.",
+        "Actuarial Science": "Act as an actuarial science professor. Explain probability, life contingencies, survival models, loss distributions, risk theory, insurance pricing, reserving, pensions, credibility theory, and actuarial exams with step-by-step solutions.",
+        "Physics": "Act as a physics professor. Explain concepts, laws, derivations, units, intuition, and applications.",
+        "Chemistry": "Act as a chemistry tutor. Explain mechanisms, equations, reactions, calculations, and laboratory intuition.",
+        "Engineering": "Act as an engineering mentor. Focus on design intuition, equations, systems, constraints, and real-world application.",
+        "Computer Science": "Act as a senior computer science tutor. Explain algorithms, complexity, code, debugging, and systems.",
+        "Data Science": "Act as a data scientist. Explain data cleaning, modeling, evaluation, visualization, and interpretation.",
+        "AI & Machine Learning": "Act as a machine learning engineer. Explain models, training, evaluation, deployment, and code examples.",
+        "Practice Questions": "Generate practice questions with answers, worked solutions, difficulty levels, and scoring guidance.",
+        "File Analysis": "Act as a document and data analyst. Summarize, extract key points, analyze tables, identify issues, and provide recommendations.",
+        "Stock Analysis": "Act as an equity research analyst. Discuss valuation, financial ratios, risks, catalysts, and investment interpretation.",
     }
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
+    return mode_instructions.get(mode, "Act as a clear, rigorous, helpful AI assistant.")
 
-    while (true) {
-      const { value, done } = await reader.read();
+def build_system_prompt(mode: str):
+    return f"""
+You are Quant AI, an advanced AI assistant for mathematics, science, engineering,
+finance, economics, statistics, data analysis, research, coding, education,
+actuarial science, and exam preparation.
 
-      if (done) break;
+Current mode: {mode}
 
-      const chunk = decoder.decode(value);
+Mode-specific instruction:
+{get_mode_instruction(mode)}
 
-      setMessages((prev) => {
-        const updated = [...prev];
-        const lastIndex = updated.length - 1;
+Formatting Rules:
+- Use Markdown headings and subheadings.
+- Use bullet points when appropriate.
+- Use numbered steps for explanations.
+- Use Markdown tables when presenting comparisons.
+- Use LaTeX for all mathematical expressions.
+- Use $...$ for inline formulas.
+- Use $$...$$ for display equations.
+- Never use raw \\( \\) or \\[ \\] delimiters.
+- For programming examples, always use fenced code blocks with language tags.
+- For research questions, answer like a professional research assistant.
+- For finance questions, provide practical interpretation in addition to formulas.
+- For educational questions, explain concepts step-by-step.
+- For actuarial questions, provide exam-style solutions and actuarial intuition.
+- For exam-preparation modes, provide worked solutions and final answers.
+- Use concise formatting but preserve technical rigor.
+"""
 
-        updated[lastIndex] = {
-          ...updated[lastIndex],
-          text: updated[lastIndex].text + chunk,
-        };
+@app.post("/chat")
+def chat(request: ChatRequest):
+    def generate():
+        try:
+            if client is None:
+                yield demo_response(request.message, request.mode)
+                return
 
-        return updated;
-      });
-    }
-  } catch {
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "assistant",
-        text: "Could not connect to backend. Check that FastAPI is running and NEXT_PUBLIC_API_URL is correct.",
-      },
-    ]);
-  }
+            stream = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": build_system_prompt(request.mode)},
+                    {"role": "user", "content": request.message},
+                ],
+                stream=True,
+            )
 
-  setLoading(false);
-}
+            for chunk in stream:
+                delta = chunk.choices[0].delta.content
+                if delta:
+                    yield delta
 
-  return (
-    <main className="min-h-screen bg-black text-white flex flex-col lg:flex-row">
-      <aside className="w-full lg:w-80 bg-gray-950 border-b lg:border-b-0 lg:border-r border-gray-800 p-4 lg:p-5">
-        <div className="flex flex-col sm:flex-row lg:flex-col gap-4 lg:gap-0">
-          <div className="sm:w-1/3 lg:w-full">
-            <h1 className="text-3xl font-bold mb-2">Quant AI</h1>
-            <p className="text-gray-400 text-sm mb-4">One AI for learning, research, analysis and exam prep.</p>
-          </div>
+        except Exception as e:
+            yield demo_response(request.message, request.mode)
+            yield f"\n\nBackend note: OpenAI call failed for now: {str(e)}"
 
-          <div className="sm:w-1/3 lg:w-full">
-            <button
-              onClick={() => {
-  const freshMessages: Message[] = [
-    { role: "assistant", text: "New chat started. Ask Quant AI anything." },
-  ];
+    return StreamingResponse(generate(), media_type="text/plain")
 
-  setMessages(freshMessages);
-  localStorage.setItem("quant-ai-messages", JSON.stringify(freshMessages));
-}}
-              className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl p-3 mb-4 font-semibold"
-            >
-              + New Chat
-            </button>
-          </div>
+@app.post("/upload")
+async def upload_file(
+    file: UploadFile = File(...),
+    mode: str = Form("File Analysis")
+):
+    try:
+        content = await file.read()
 
-          <div className="sm:w-1/3 lg:w-full">
-            <p className="text-gray-400 text-sm mb-2">Mode</p>
-            <select
-              value={mode}
-              onChange={(e) => setMode(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white"
-            >
-              {modes.map((item) => <option key={item}>{item}</option>)}
-            </select>
-          </div>
-        </div>
+        try:
+            text = content.decode("utf-8")
+        except Exception:
+            text = "This file could not be decoded as plain text yet."
 
-        <div className="hidden lg:block space-y-3 text-sm text-gray-400 mt-6">
-          <p>Core Engines:</p>
-          <p>• AI Chat</p>
-          <p>• Research Assistant</p>
-          <p>• Math & Science Solver</p>
-          <p>• Finance & Stock Analysis</p>
-          <p>• Practice Question Generator</p>
-          <p>• Education Engine</p>
-          <p>• File Intelligence</p>
-        </div>
-      </aside>
+        prompt = f"""
+Analyze the uploaded file.
 
-      <section className="flex-1 flex flex-col min-h-[calc(100vh-230px)] lg:min-h-screen">
-        <div className="border-b border-gray-800 p-4 lg:p-5">
-          <h2 className="text-xl lg:text-2xl font-semibold">{mode}</h2>
-          <p className="text-gray-400 text-xs lg:text-sm">Connected through NEXT_PUBLIC_API_URL</p>
-        </div>
+Filename: {file.filename}
 
-        <div className="flex-1 p-4 lg:p-6 overflow-y-auto space-y-4">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`w-full lg:max-w-4xl p-4 rounded-2xl text-sm lg:text-base ${
-                msg.role === "user" ? "bg-blue-700 lg:ml-auto" : "bg-gray-900 border border-gray-800"
-              }`}
-            >
-              <p className="text-sm text-gray-300 mb-2">
-                {msg.role === "user" ? "You" : "Quant AI"}
-              </p>
+File content:
+{text[:12000]}
 
-              <div className="whitespace-pre-wrap leading-relaxed break-words">
-               <ReactMarkdown
-  remarkPlugins={[remarkMath]}
-  rehypePlugins={[rehypeKatex]}
-  components={{
-    code({ className, children }) {
-      const match = /language-(\w+)/.exec(className || "");
+Tasks:
+- Summarize the file
+- Extract key points
+- Identify issues or weaknesses
+- Provide recommendations
+- Use Markdown formatting
+"""
 
-      return match ? (
-        <SyntaxHighlighter
-          style={oneDark}
-          language={match[1]}
-          PreTag="div"
-        >
-          {String(children).replace(/\n$/, "")}
-        </SyntaxHighlighter>
-      ) : (
-        <code className="bg-gray-800 px-1 py-0.5 rounded">
-          {children}
-        </code>
-      );
-    },
-  }}
->
-  {msg.text}
-</ReactMarkdown>
-              </div>
-            </div>
-          ))}
+        if client is None:
+            return {
+                "response": f"""
+File received successfully.
 
-          {loading && (
-            <div className="w-full lg:max-w-4xl p-4 rounded-2xl bg-gray-900 border border-gray-800">
-              <p className="text-sm text-gray-300 mb-2">Quant AI</p>
-              <p>Thinking...</p>
-            </div>
-          )}
-        </div>
+Filename: {file.filename}
 
-        <div className="border-t border-gray-800 p-4 lg:p-5 sticky bottom-0 bg-black">
-  <div className="w-full flex items-end gap-3 bg-[#1f1f1f] border border-gray-700 rounded-3xl px-4 py-3">
-    <textarea
-  value={message}
-  onChange={(e) => {
-    setMessage(e.target.value);
+Demo analysis:
+This file upload route is working. Real AI file analysis will activate once OpenAI billing/quota is restored.
+"""
+            }
 
-    e.target.style.height = "auto";
-    e.target.style.height = `${e.target.scrollHeight}px`;
-  }}
-  onKeyDown={(e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": build_system_prompt(mode)},
+                {"role": "user", "content": prompt},
+            ],
+        )
 
-      const target = e.target as HTMLTextAreaElement;
-      target.style.height = "auto";
-    }
-  }}
-  placeholder="Ask Quant AI anything..."
-  rows={1}
-  className="flex-1 w-full bg-transparent text-white placeholder:text-gray-400 outline-none resize-none px-2 py-2 min-h-[40px] max-h-[200px] overflow-y-auto"
-/>
-    <button
-      onClick={sendMessage}
-      disabled={loading}
-      className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 rounded-full w-10 h-10 flex items-center justify-center font-bold"
-    >
-      ↑
-    </button>
-  </div>
-</div>
+        return {"response": response.choices[0].message.content}
 
-      </section>
-    </main>
-  );
-}
+    except Exception as e:
+        return {"response": f"File upload failed: {str(e)}"}
