@@ -11,16 +11,17 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "katex/dist/katex.min.css";
 
 const modes = [
-  "General AI Chat", "Research Assistant", "Education Engine",
-  "SAT Practice", "ACT Practice", "GRE Practice", "GMAT Practice",
-  "LSAT Practice", "MCAT Practice", "Olympiads", "AP Exams",
-  "WAEC Practice", "JAMB Practice", "IGCSE Practice", "A-Level Practice",
-  "Mathematics", "Pure Mathematics", "Applied Mathematics",
-  "Academic Writing", "SOA Exam P", "SOA Exam FM", "IFOA CS1", "IFOA CM1",
-  "Statistics", "Finance", "CFA Exam", "Accounting", "ICAN Exam",
-  "Economics", "Actuarial Science", "Physics", "Chemistry", "Engineering",
-  "Computer Science", "Data Science", "AI & Machine Learning",
-  "Practice Questions", "File Analysis", "Stock Analysis",
+  "General AI Chat", "Research Assistant","Research Paper Analysis", "Economics Paper Review",
+  "Finance Paper Review", "Accounting Paper Review","Actuarial Paper Review", "Statistics Paper Review",
+  "Mathematics Paper Review", "Computer Science Paper Review", "Engineering Paper Review", 
+  "Machine Learning Paper Review", "Physics Paper Review", "Chemistry Paper Review", "Business Paper Review",
+  "Marketing Paper Review", "Management Paper Review", "Healthcare Paper Review", "Law Paper Review",
+  "Public Policy Paper Review", "Climate Research Review", "Dissertation Review", "Journal Referee Mode", 
+  "Education Engine", "SAT Practice", "ACT Practice", "GRE Practice", "GMAT Practice","LSAT Practice", 
+  "MCAT Practice", "Olympiads", "AP Exams", "WAEC Practice", "JAMB Practice", "IGCSE Practice", "A-Level Practice",
+  "Mathematics", "Pure Mathematics", "Applied Mathematics", "Academic Writing", "SOA Exam P", "SOA Exam FM", "IFOA CS1", "IFOA CM1",
+  "Statistics", "Finance", "CFA Exam", "Accounting", "ICAN Exam", "Economics", "Actuarial Science", "Physics", "Chemistry",
+  "Engineering", "Computer Science", "Data Science", "AI & Machine Learning", "Practice Questions", "File Analysis", "Stock Analysis",
 ];
 
 type Message = { role: "user" | "assistant"; text: string };
