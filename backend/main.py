@@ -368,7 +368,7 @@ Demo mode: Real AI analysis will activate once OpenAI billing/quota is restored.
         + stats_report
         + "\n\n"
         + response.choices[0].message.content,
-    "chart": encoded
+    "chart": encoded if encoded else None
 }
 
     except Exception as e:
