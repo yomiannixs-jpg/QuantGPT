@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -496,7 +497,7 @@ export default function Dashboard() {
               <div className="whitespace-pre-wrap leading-relaxed break-words">
                 <ReactMarkdown
                   remarkPlugins={[remarkMath]}
-                  rehypePlugins={[rehypeKatex]}
+                  rehypePlugins={[rehypeRaw, rehypeKatex]}
                   components={{
                     code({ className, children }) {
                       const match = /language-(\w+)/.exec(className || "");
