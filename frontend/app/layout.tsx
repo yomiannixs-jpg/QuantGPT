@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Quant AI",
+  title: "Quant GPT",
   description: "AI for mathematics, science, engineering, finance, economics, research, data analysis and exam preparation.",
-  appleWebApp: { capable: true, title: "Quant AI", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "Quant GPT", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = { themeColor: "#000000", width: "device-width", initialScale: 1 };
