@@ -8,13 +8,13 @@ export default function Home() {
     <main className="min-h-screen bg-black text-white">
       <section className="max-w-7xl mx-auto px-5 md:px-8 py-14 md:py-20">
         <div className="mb-12 md:mb-16">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6">Quant AI</h1>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6">Quant GPT</h1>
           <p className="text-xl md:text-2xl text-gray-300 max-w-4xl">
             Advanced AI for mathematics, science, engineering, finance, economics, Actuarial Science, data analysis, research, coding and exam preparation.
           </p>
           <div className="mt-8">
             <a href="/dashboard" className="inline-block bg-blue-600 hover:bg-blue-700 px-7 py-4 rounded-xl text-lg font-semibold">
-              Start Using Quant AI
+              Start Using Quant GPT
             </a>
           </div>
         </div>
