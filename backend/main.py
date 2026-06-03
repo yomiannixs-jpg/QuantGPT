@@ -185,59 +185,103 @@ async def upload_file(
 
         text = ""
         chart_markdown = ""
+        stats_report = ""
 
         if filename.endswith(".txt"):
             text = content.decode("utf-8", errors="ignore")
 
-        elif filename.endswith(".csv"):
+        elif filename.endswith(".csv") or filename.endswith(".xlsx"):
             import pandas as pd
             import io
             import matplotlib.pyplot as plt
             import base64
 
-            df = pd.read_csv(io.BytesIO(content))
+            if filename.endswith(".csv"):
+                df = pd.read_csv(io.BytesIO(content))
+            else:
+                df = pd.read_excel(io.BytesIO(content))
+
             text = df.head(50).to_string(index=False)
 
-            numeric_cols = df.select_dtypes(include="number").columns.tolist()
+            rows, cols = df.shape
+            missing_values = df.isna().sum()
+            numeric_df = df.select_dtypes(include="number")
 
-            if len(numeric_cols) >= 1:
-                plt.figure(figsize=(8, 4))
-                df[numeric_cols[:3]].head(50).plot()
-                plt.title("Preview Chart")
-                plt.tight_layout()
+            stats_report += f"""
+DATASET SUMMARY
 
-                buffer = io.BytesIO()
-                plt.savefig(buffer, format="png")
-                plt.close()
-                buffer.seek(0)
+Rows: {rows}
+Columns: {cols}
 
-                encoded = base64.b64encode(buffer.read()).decode("utf-8")
-                chart_markdown = f"\n\n![Generated Chart](data:image/png;base64,{encoded})\n"
+COLUMN NAMES:
+{", ".join(df.columns.astype(str).tolist())}
 
-        elif filename.endswith(".xlsx"):
-            import pandas as pd
-            import io
-            import matplotlib.pyplot as plt
-            import base64
+MISSING VALUES:
+{missing_values.to_string()}
+"""
 
-            df = pd.read_excel(io.BytesIO(content))
-            text = df.head(50).to_string(index=False)
+            if not numeric_df.empty:
+                descriptive_stats = numeric_df.describe().to_string()
 
-            numeric_cols = df.select_dtypes(include="number").columns.tolist()
+                stats_report += f"""
 
-            if len(numeric_cols) >= 1:
-                plt.figure(figsize=(8, 4))
-                df[numeric_cols[:3]].head(50).plot()
-                plt.title("Preview Chart")
-                plt.tight_layout()
+DESCRIPTIVE STATISTICS:
+{descriptive_stats}
+"""
 
-                buffer = io.BytesIO()
-                plt.savefig(buffer, format="png")
-                plt.close()
-                buffer.seek(0)
+                corr = numeric_df.corr()
 
-                encoded = base64.b64encode(buffer.read()).decode("utf-8")
-                chart_markdown = f"\n\n![Generated Chart](data:image/png;base64,{encoded})\n"
+                stats_report += f"""
+
+CORRELATION MATRIX:
+{corr.to_string()}
+"""
+
+                correlation_pairs = []
+
+                for i in range(len(corr.columns)):
+                    for j in range(i + 1, len(corr.columns)):
+                        col1 = corr.columns[i]
+                        col2 = corr.columns[j]
+                        value = corr.iloc[i, j]
+
+                        if pd.notna(value):
+                            correlation_pairs.append((col1, col2, value))
+
+                if correlation_pairs:
+                    strongest_positive = max(correlation_pairs, key=lambda x: x[2])
+                    strongest_negative = min(correlation_pairs, key=lambda x: x[2])
+
+                    stats_report += f"""
+
+STRONGEST POSITIVE CORRELATION:
+{strongest_positive[0]} and {strongest_positive[1]}: {strongest_positive[2]:.4f}
+
+STRONGEST NEGATIVE CORRELATION:
+{strongest_negative[0]} and {strongest_negative[1]}: {strongest_negative[2]:.4f}
+"""
+
+                numeric_cols = numeric_df.columns.tolist()
+
+                if len(numeric_cols) >= 1:
+                    plt.figure(figsize=(8, 4))
+                    df[numeric_cols[:3]].head(50).plot()
+                    plt.title("Preview Chart")
+                    plt.tight_layout()
+
+                    buffer = io.BytesIO()
+                    plt.savefig(buffer, format="png")
+                    plt.close()
+                    buffer.seek(0)
+
+                    encoded = base64.b64encode(buffer.read()).decode("utf-8")
+                    chart_markdown = f"\n\n![Generated Chart](data:image/png;base64,{encoded})\n"
+
+            else:
+                stats_report += """
+
+No numeric columns were detected, so descriptive statistics and correlations were not computed.
+"""
 
         elif filename.endswith(".pdf"):
             import PyPDF2
@@ -269,14 +313,21 @@ Filename: {file.filename}
 Generated chart if available:
 {chart_markdown}
 
+Automatic dataset statistics report if available:
+{stats_report}
+
 Extracted content:
 {text[:15000]}
 
 Tasks:
 - Summarize the document or dataset.
 - Extract the key points.
+- If it is data, explain the dataset structure.
+- Interpret the descriptive statistics.
+- Interpret missing values.
+- Interpret correlations.
 - Identify weaknesses, risks, or issues.
-- If it is data, describe trends, variables, and possible analysis.
+- Suggest possible empirical, statistical, financial, actuarial, or research analyses.
 - Provide recommendations.
 - Use Markdown formatting.
 """
@@ -290,6 +341,9 @@ Filename: {file.filename}
 
 Generated chart if available:
 {chart_markdown}
+
+Automatic dataset statistics report:
+{stats_report}
 
 Extracted preview:
 
@@ -308,7 +362,12 @@ Demo mode: Real AI analysis will activate once OpenAI billing/quota is restored.
         )
 
         return {
-            "response": chart_markdown + "\n\n" + response.choices[0].message.content
+            "response": chart_markdown
+            + "\n\n"
+            + "## Automatic Dataset Statistics Report\n\n"
+            + stats_report
+            + "\n\n"
+            + response.choices[0].message.content
         }
 
     except Exception as e:
