@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Quant AI",
-    short_name: "Quant AI",
+    name: "Quant GPT",
+    short_name: "Quant GPT",
     description: "AI for mathematics, science, engineering, finance, research, data analysis and exam preparation.",
     start_url: "/",
     display: "standalone",
