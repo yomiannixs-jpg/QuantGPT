@@ -144,26 +144,64 @@ async def upload_file(
 ):
     try:
         content = await file.read()
+        filename = file.filename.lower()
 
-        try:
-            text = content.decode("utf-8")
-        except Exception:
-            text = "This file could not be decoded as plain text yet."
+        text = ""
+
+        if filename.endswith(".txt"):
+            text = content.decode("utf-8", errors="ignore")
+
+        elif filename.endswith(".csv"):
+            import pandas as pd
+            import io
+
+            df = pd.read_csv(io.BytesIO(content))
+            text = df.head(50).to_markdown(index=False)
+
+        elif filename.endswith(".xlsx"):
+            import pandas as pd
+            import io
+
+            df = pd.read_excel(io.BytesIO(content))
+            text = df.head(50).to_markdown(index=False)
+
+        elif filename.endswith(".pdf"):
+            import PyPDF2
+            import io
+
+            reader = PyPDF2.PdfReader(io.BytesIO(content))
+            pages = []
+
+            for page in reader.pages[:20]:
+                pages.append(page.extract_text() or "")
+
+            text = "\n".join(pages)
+
+        elif filename.endswith(".docx"):
+            import docx
+            import io
+
+            document = docx.Document(io.BytesIO(content))
+            text = "\n".join([p.text for p in document.paragraphs])
+
+        else:
+            text = "Unsupported file type. Please upload TXT, CSV, XLSX, PDF, or DOCX."
 
         prompt = f"""
 Analyze the uploaded file.
 
 Filename: {file.filename}
 
-File content:
-{text[:12000]}
+Extracted content:
+{text[:15000]}
 
 Tasks:
-- Summarize the file
-- Extract key points
-- Identify issues or weaknesses
-- Provide recommendations
-- Use Markdown formatting
+- Summarize the document or dataset.
+- Extract the key points.
+- Identify weaknesses, risks, or issues.
+- If it is data, describe trends, variables, and possible analysis.
+- Provide recommendations.
+- Use Markdown formatting.
 """
 
         if client is None:
@@ -173,8 +211,11 @@ File received successfully.
 
 Filename: {file.filename}
 
-Demo analysis:
-This file upload route is working. Real AI file analysis will activate once OpenAI billing/quota is restored.
+Extracted preview:
+
+{text[:2000]}
+
+Demo mode: Real AI analysis will activate once OpenAI billing/quota is restored.
 """
             }
 
