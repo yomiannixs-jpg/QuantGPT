@@ -36,6 +36,7 @@ const modes = [
   "Statistics",
   "Finance",
   "CFA",
+  "Accounting",
   "ICAN",
   "Economics",
   "Actuarial Science",
@@ -366,6 +367,28 @@ export default function Dashboard() {
             className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl p-3 font-semibold"
           >
             + New Chat
+            <button
+  onClick={() => {
+    if (!activeChat) return;
+
+    const chatText = activeChat.messages
+      .map((m) => `## ${m.role === "user" ? "You" : "Quant AI"}\n\n${m.text}`)
+      .join("\n\n---\n\n");
+
+    const blob = new Blob([chatText], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${activeChat.title.replace(/[^a-z0-9]/gi, "_")}.md`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+  }}
+  className="w-full bg-gray-800 hover:bg-gray-700 rounded-xl p-3 font-semibold"
+>
+  ⬇ Export Chat
+</button>
           </button>
 
           <div>
@@ -453,9 +476,20 @@ export default function Dashboard() {
                   : "bg-gray-900 border border-gray-800"
               }`}
             >
-              <p className="text-sm text-gray-300 mb-2">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-gray-300">
                 {msg.role === "user" ? "You" : "Quant AI"}
-              </p>
+               </p>
+
+              {msg.role === "assistant" && (
+              <button
+              onClick={() => navigator.clipboard.writeText(msg.text)}
+              className="text-xs text-gray-400 hover:text-white"
+             >
+             📋 Copy
+             </button>
+          )}
+      </div>
 
               <div className="whitespace-pre-wrap leading-relaxed break-words">
                 <ReactMarkdown
