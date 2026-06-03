@@ -21,9 +21,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class ChatMessage(BaseModel):
+    role: str
+    text: str
+
 class ChatRequest(BaseModel):
     message: str
     mode: str = "General AI Chat"
+    history: list[ChatMessage] = []
 
 def demo_response(message: str, mode: str):
     return f"""
@@ -36,7 +41,7 @@ Your message:
 
 The frontend is successfully connected to the backend.
 
-Real OpenAI responses will activate once your API billing/quota is restored.
+Real OpenAI responses will activate once OpenAI billing/quota is restored.
 """
 
 @app.get("/")
@@ -117,12 +122,28 @@ def chat(request: ChatRequest):
                 yield demo_response(request.message, request.mode)
                 return
 
+            chat_messages = [
+                {
+                    "role": "system",
+                    "content": build_system_prompt(request.mode),
+                }
+            ]
+
+            for item in request.history[-12:]:
+                if item.role in ["user", "assistant"]:
+                    chat_messages.append({
+                        "role": item.role,
+                        "content": item.text,
+                    })
+
+            chat_messages.append({
+                "role": "user",
+                "content": request.message,
+            })
+
             stream = client.chat.completions.create(
                 model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": build_system_prompt(request.mode)},
-                    {"role": "user", "content": request.message},
-                ],
+                messages=chat_messages,
                 stream=True,
             )
 
