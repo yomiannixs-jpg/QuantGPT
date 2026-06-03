@@ -35,7 +35,7 @@ type ChatSession = {
 
 const welcomeMessage: Message = {
   role: "assistant",
-  text: "Welcome to Quant GPT,Developed by YomiAnnixs. Ask anything in mathematics, finance, actuarial science, accounting, CFA, ICAN, economics, data analysis, research, coding, exam prep, Olympiads, or stock analysis.",
+  text: "Welcome to Quant GPT_an AI app Developed by YomiAnnixs. Ask anything in mathematics, finance, actuarial science, accounting, CFA, ICAN, economics, data analysis, research, coding, exam prep, Olympiads, or stock analysis.",
 };
 
 function createNewChat(): ChatSession {
