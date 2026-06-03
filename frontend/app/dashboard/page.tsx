@@ -29,36 +29,72 @@ export default function Dashboard() {
     { role: "assistant", text: "Welcome to Quant AI. Ask anything in mathematics, finance, science, engineering, economics, data analysis, research, coding, exam prep, Olympiads, or stock analysis." }
   ]);
 
-  async function sendMessage() {
-    if (!message.trim()) return;
+async function sendMessage() {
+  if (!message.trim()) return;
 
-    const currentMessage = message;
-    setMessages((prev) => [...prev, { role: "user", text: currentMessage }]);
-    setMessage("");
-    setLoading(true);
+  const currentMessage = message;
 
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-      const res = await fetch(`${apiUrl}/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: currentMessage, mode }),
-      });
+  setMessages((prev) => [
+    ...prev,
+    { role: "user", text: currentMessage },
+    { role: "assistant", text: "" },
+  ]);
 
-      const data = await res.json();
-      setMessages((prev) => [...prev, {
-        role: "assistant",
-        text: data.response || data.error || "Backend responded, but no message was returned.",
-      }]);
-    } catch {
-      setMessages((prev) => [...prev, {
-        role: "assistant",
-        text: "Could not connect to backend. Check that FastAPI is running and NEXT_PUBLIC_API_URL is correct.",
-      }]);
+  setMessage("");
+  setLoading(true);
+
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+    const res = await fetch(`${apiUrl}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: currentMessage,
+        mode,
+      }),
+    });
+
+    if (!res.body) {
+      throw new Error("No response body");
     }
 
-    setLoading(false);
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { value, done } = await reader.read();
+
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        const lastIndex = updated.length - 1;
+
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+          text: updated[lastIndex].text + chunk,
+        };
+
+        return updated;
+      });
+    }
+  } catch {
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        text: "Could not connect to backend. Check that FastAPI is running and NEXT_PUBLIC_API_URL is correct.",
+      },
+    ]);
   }
+
+  setLoading(false);
+}
 
   return (
     <main className="min-h-screen bg-black text-white flex flex-col lg:flex-row">
