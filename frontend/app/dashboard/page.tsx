@@ -361,6 +361,7 @@ export default function Dashboard() {
               📎
               <input
                 type="file"
+                accept=".txt,.csv,.xlsx,.pdf,.docx"
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
