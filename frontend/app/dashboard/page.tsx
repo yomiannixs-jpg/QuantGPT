@@ -361,37 +361,34 @@ export default function Dashboard() {
               One AI for learning, research, analysis and exam prep.
             </p>
           </div>
-
+          
+          <div className="space-y-3">
           <button
             onClick={startNewChat}
             className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl p-3 font-semibold"
           >
             + New Chat
-            <button
-  onClick={() => {
-    if (!activeChat) return;
-
-    const chatText = activeChat.messages
-      .map((m) => `## ${m.role === "user" ? "You" : "Quant AI"}\n\n${m.text}`)
-      .join("\n\n---\n\n");
-
-    const blob = new Blob([chatText], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${activeChat.title.replace(/[^a-z0-9]/gi, "_")}.md`;
-    a.click();
-
-    URL.revokeObjectURL(url);
-  }}
-  className="w-full bg-gray-800 hover:bg-gray-700 rounded-xl p-3 font-semibold"
->
-  ⬇ Export Chat
-</button>
           </button>
-
-          <div>
+          button
+          onClick={() => {
+          if (!activeChat) return;
+          const chatText = activeChat.messages
+          .map((m) => `## ${m.role === "user" ? "You" : "Quant AI"}\n\n${m.text}`)
+          .join("\n\n---\n\n");
+          const blob = new Blob([chatText], { type: "text/markdown" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `${activeChat.title.replace(/[^a-z0-9]/gi, "_")}.md`;
+          a.click();
+          URL.revokeObjectURL(url);
+      }}
+        className="w-full bg-gray-800 hover:bg-gray-700 rounded-xl p-3 font-semibold"
+        >
+        ⬇ Export Chat
+      </button>
+    </div>
+     <div>
             <p className="text-gray-400 text-sm mb-2">Mode</p>
             <select
               value={mode}
