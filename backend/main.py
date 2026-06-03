@@ -185,14 +185,54 @@ async def upload_file(
             import io
 
             df = pd.read_csv(io.BytesIO(content))
-            text = df.head(50).to_markdown(index=False)
+text = df.head(50).to_markdown(index=False)
+
+chart_markdown = ""
+numeric_cols = df.select_dtypes(include="number").columns.tolist()
+
+if len(numeric_cols) >= 1:
+    import matplotlib.pyplot as plt
+    import base64
+
+    plt.figure(figsize=(8, 4))
+    df[numeric_cols[:3]].head(50).plot()
+    plt.title("Preview Chart")
+    plt.tight_layout()
+
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    plt.close()
+    buffer.seek(0)
+
+    encoded = base64.b64encode(buffer.read()).decode("utf-8")
+    chart_markdown = f"\n\n![Generated Chart](data:image/png;base64,{encoded})\n"
 
         elif filename.endswith(".xlsx"):
             import pandas as pd
             import io
 
             df = pd.read_excel(io.BytesIO(content))
-            text = df.head(50).to_markdown(index=False)
+text = df.head(50).to_markdown(index=False)
+
+chart_markdown = ""
+numeric_cols = df.select_dtypes(include="number").columns.tolist()
+
+if len(numeric_cols) >= 1:
+    import matplotlib.pyplot as plt
+    import base64
+
+    plt.figure(figsize=(8, 4))
+    df[numeric_cols[:3]].head(50).plot()
+    plt.title("Preview Chart")
+    plt.tight_layout()
+
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png")
+    plt.close()
+    buffer.seek(0)
+
+    encoded = base64.b64encode(buffer.read()).decode("utf-8")
+    chart_markdown = f"\n\n![Generated Chart](data:image/png;base64,{encoded})\n"
 
         elif filename.endswith(".pdf"):
             import PyPDF2
@@ -215,6 +255,8 @@ async def upload_file(
 
         else:
             text = "Unsupported file type. Please upload TXT, CSV, XLSX, PDF, or DOCX."
+            if "chart_markdown" not in locals():
+            chart_markdown = ""
 
         prompt = f"""
 Analyze the uploaded file.
@@ -222,6 +264,8 @@ Analyze the uploaded file.
 Filename: {file.filename}
 
 Extracted content:
+Generated chart if available:
+{chart_markdown}
 {text[:15000]}
 
 Tasks:
@@ -256,7 +300,7 @@ Demo mode: Real AI analysis will activate once OpenAI billing/quota is restored.
             ],
         )
 
-        return {"response": response.choices[0].message.content}
+        return {"response": chart_markdown + "\n\n" + response.choices[0].message.content}
 
     except Exception as e:
         return {"response": f"File upload failed: {str(e)}"}
