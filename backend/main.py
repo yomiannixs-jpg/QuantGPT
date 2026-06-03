@@ -11,7 +11,7 @@ load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key) if api_key else None
 
-app = FastAPI(title="Quant AI Backend")
+app = FastAPI(title="Quant GPT Backend")
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,7 +32,7 @@ class ChatRequest(BaseModel):
 
 def demo_response(message: str, mode: str):
     return f"""
-Quant AI Demo Response
+Quant GPT Demo Response
 
 Mode: {mode}
 
@@ -46,7 +46,7 @@ Real OpenAI responses will activate once your API billing/quota is restored.
 
 @app.get("/")
 def home():
-    return {"status": "Quant AI backend is running"}
+    return {"status": "Quant GPT backend is running"}
 
 def get_mode_instruction(mode: str):
     mode_instructions = {
@@ -101,7 +101,7 @@ def get_mode_instruction(mode: str):
 
 def build_system_prompt(mode: str):
     return f"""
-You are Quant AI, an advanced AI assistant for mathematics, science, engineering,
+You are Quant GPT, an advanced AI assistant for mathematics, science, engineering,
 finance, economics, accounting, statistics, data analysis, research, coding,
 education, actuarial science, and exam preparation.
 
@@ -186,7 +186,8 @@ async def upload_file(
         text = ""
         chart_markdown = ""
         stats_report = ""
-
+        
+        
         if filename.endswith(".txt"):
             text = content.decode("utf-8", errors="ignore")
 
@@ -361,14 +362,15 @@ Demo mode: Real AI analysis will activate once OpenAI billing/quota is restored.
             ],
         )
 
-        return {
-            "response": chart_markdown
-            + "\n\n"
-            + "## Automatic Dataset Statistics Report\n\n"
-            + stats_report
-            + "\n\n"
-            + response.choices[0].message.content
-        }
+       return {
+    "response":
+        "## Automatic Dataset Statistics Report\n\n"
+        + stats_report
+        + "\n\n"
+        + response.choices[0].message.content,
+
+    "chart": encoded if encoded else None
+}
 
     except Exception as e:
         return {"response": f"File upload failed: {str(e)}"}
