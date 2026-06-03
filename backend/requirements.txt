@@ -9,4 +9,3 @@ python-docx
 pandas
 openpyxl
 matplotlib
-tabulate
