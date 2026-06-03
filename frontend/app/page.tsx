@@ -1,6 +1,6 @@
 export default function Home() {
   const subjects = [
-    "Mathematics", "Statistics", "Finance", "Economics", "Physics", "Chemistry",
+    "Mathematics", "Statistics", "Finance", "Economics", "Actuarial Science", "Physics", "Chemistry",
     "Engineering", "Computer Science", "Data Science", "Research", "AI & Machine Learning", "Practice Questions"
   ];
 
@@ -10,7 +10,7 @@ export default function Home() {
         <div className="mb-12 md:mb-16">
           <h1 className="text-5xl md:text-7xl font-bold mb-6">Quant AI</h1>
           <p className="text-xl md:text-2xl text-gray-300 max-w-4xl">
-            Advanced AI for mathematics, science, engineering, finance, economics, data analysis, research, coding and exam preparation.
+            Advanced AI for mathematics, science, engineering, finance, economics, Actuarial Science, data analysis, research, coding and exam preparation.
           </p>
           <div className="mt-8">
             <a href="/dashboard" className="inline-block bg-blue-600 hover:bg-blue-700 px-7 py-4 rounded-xl text-lg font-semibold">
