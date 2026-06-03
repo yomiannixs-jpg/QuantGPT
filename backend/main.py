@@ -179,40 +179,64 @@ async def upload_file(
 
         if filename.endswith(".txt"):
             text = content.decode("utf-8", errors="ignore")
-
         elif filename.endswith(".csv"):
             import pandas as pd
             import io
+            import matplotlib.pyplot as plt
+            import base64
 
             df = pd.read_csv(io.BytesIO(content))
-text = df.head(50).to_markdown(index=False)
+            text = df.head(50).to_string(index=False)
 
-chart_markdown = ""
-numeric_cols = df.select_dtypes(include="number").columns.tolist()
+            chart_markdown = ""
+            numeric_cols = df.select_dtypes(include="number").columns.tolist()
 
-if len(numeric_cols) >= 1:
-    import matplotlib.pyplot as plt
-    import base64
+            if len(numeric_cols) >= 1:
+                plt.figure(figsize=(8, 4))
+                df[numeric_cols[:3]].head(50).plot()
+                plt.title("Preview Chart")
+                plt.tight_layout()
 
-    plt.figure(figsize=(8, 4))
-    df[numeric_cols[:3]].head(50).plot()
-    plt.title("Preview Chart")
-    plt.tight_layout()
+                buffer = io.BytesIO()
+                plt.savefig(buffer, format="png")
+                plt.close()
+                buffer.seek(0)
 
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format="png")
-    plt.close()
-    buffer.seek(0)
+                encoded = base64.b64encode(buffer.read()).decode("utf-8")
+                chart_markdown = f"\n\n![Generated Chart](data:image/png;base64,{encoded})\n"
 
-    encoded = base64.b64encode(buffer.read()).decode("utf-8")
-    chart_markdown = f"\n\n![Generated Chart](data:image/png;base64,{encoded})\n"
+        elif filename.endswith(".xlsx"):
+            import pandas as pd
+            import io
+            import matplotlib.pyplot as plt
+            import base64
+
+            df = pd.read_excel(io.BytesIO(content))
+            text = df.head(50).to_string(index=False)
+
+            chart_markdown = ""
+            numeric_cols = df.select_dtypes(include="number").columns.tolist()
+
+            if len(numeric_cols) >= 1:
+                plt.figure(figsize=(8, 4))
+                df[numeric_cols[:3]].head(50).plot()
+                plt.title("Preview Chart")
+                plt.tight_layout()
+
+                buffer = io.BytesIO()
+                plt.savefig(buffer, format="png")
+                plt.close()
+                buffer.seek(0)
+
+                encoded = base64.b64encode(buffer.read()).decode("utf-8")
+                chart_markdown = f"\n\n![Generated Chart](data:image/png;base64,{encoded})\n"
 
         elif filename.endswith(".xlsx"):
             import pandas as pd
             import io
 
             df = pd.read_excel(io.BytesIO(content))
-text = df.head(50).to_markdown(index=False)
+            text = df.head(50).to_string(index=False)
 
 chart_markdown = ""
 numeric_cols = df.select_dtypes(include="number").columns.tolist()
