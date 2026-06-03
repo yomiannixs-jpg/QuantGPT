@@ -275,7 +275,7 @@ STRONGEST NEGATIVE CORRELATION:
                     buffer.seek(0)
 
                     encoded = base64.b64encode(buffer.read()).decode("utf-8")
-                    chart_markdown = f"\n\n![Generated Chart](data:image/png;base64,{encoded})\n"
+                    chart_markdown = f'\n\n<img src="data:image/png;base64,{encoded}" alt="Generated Chart" style="max-width:100%; border-radius:12px; margin-top:12px;" />\n'
 
             else:
                 stats_report += """
