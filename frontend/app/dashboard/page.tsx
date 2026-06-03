@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -28,6 +28,26 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", text: "Welcome to Quant AI. Ask anything in mathematics, finance, science, engineering, economics, data analysis, research, coding, exam prep, Olympiads, or stock analysis." }
   ]);
+  useEffect(() => {
+  const savedMessages = localStorage.getItem("quant-ai-messages");
+  const savedMode = localStorage.getItem("quant-ai-mode");
+
+  if (savedMessages) {
+    setMessages(JSON.parse(savedMessages));
+  }
+
+  if (savedMode) {
+    setMode(savedMode);
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("quant-ai-messages", JSON.stringify(messages));
+}, [messages]);
+
+useEffect(() => {
+  localStorage.setItem("quant-ai-mode", mode);
+}, [mode]);
 
 async function sendMessage() {
   if (!message.trim()) return;
@@ -107,7 +127,14 @@ async function sendMessage() {
 
           <div className="sm:w-1/3 lg:w-full">
             <button
-              onClick={() => setMessages([{ role: "assistant", text: "New chat started. Ask Quant AI anything." }])}
+              onClick={() => {
+  const freshMessages: Message[] = [
+    { role: "assistant", text: "New chat started. Ask Quant AI anything." },
+  ];
+
+  setMessages(freshMessages);
+  localStorage.setItem("quant-ai-messages", JSON.stringify(freshMessages));
+}}
               className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl p-3 mb-4 font-semibold"
             >
               + New Chat
