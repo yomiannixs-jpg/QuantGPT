@@ -32,7 +32,15 @@ type Message = { role: "user" | "assistant"; text: string };
 type Project = {
   id: string;
   name: string;
+  color: string;
   updatedAt: number;
+};
+const projectColors: Record<string, string> = {
+  purple: "bg-purple-900",
+  blue: "bg-blue-900",
+  green: "bg-green-900",
+  orange: "bg-orange-900",
+  red: "bg-red-900",
 };
 type ProjectFile = {
   id: string;
@@ -254,24 +262,35 @@ setProjectFiles(loadedProjectFiles);
     );
   }
 
-  function startNewProject() {
-    const projectName = window.prompt("Enter project name:");
+     function startNewProject() {
+     const projectName = window.prompt("Enter project name:");
 
-    if (!projectName || !projectName.trim()) return;
+     if (!projectName || !projectName.trim()) return;
 
-    const newProject = createNewProject(projectName.trim());
-    const newChat = createNewChat(newProject.id);
+     const colors = ["purple", "blue", "green", "orange", "red"];
 
-    setProjects((prev) => [newProject, ...prev]);
-    setChats((prev) => [newChat, ...prev]);
+     const randomColor =
+     colors[Math.floor(Math.random() * colors.length)];
+ 
+     const newProject: Project = {
+      id: Date.now().toString(),
+      name: projectName.trim(),
+      color: randomColor,
+      updatedAt: Date.now(),
+  };
 
-    setActiveProjectId(newProject.id);
-    setActiveChatId(newChat.id);
-    setMode(newChat.mode);
-    setMessage("");
-    setSelectedFile(null);
-    setChart(null);
-  }
+  const newChat = createNewChat(newProject.id);
+
+  setProjects((prev) => [newProject, ...prev]);
+  setChats((prev) => [newChat, ...prev]);
+
+  setActiveProjectId(newProject.id);
+  setActiveChatId(newChat.id);
+  setMode(newChat.mode);
+  setMessage("");
+  setSelectedFile(null);
+  setChart(null);
+}
      function renameProject(project: Project) {
   const newName = window.prompt("Rename project", project.name);
 
@@ -585,15 +604,31 @@ setProjectFiles((prev) => [fileRecord, ...prev]);
           <div
             key={project.id}
             className={`group flex items-center justify-between gap-2 rounded-xl px-3 py-2 cursor-pointer ${
-              project.id === activeProjectId ? "bg-purple-900" : "bg-gray-900 hover:bg-gray-800"
+              project.id === activeProjectId
+                ? projectColors[project.color]
+                : "bg-gray-900 hover:bg-gray-800"
             }`}
           >
-             <button
-                onClick={() => selectProject(project)}
-                className="flex-1 text-left truncate text-sm"
-          >
-                {project.name}
-            </button>
+            <button
+              onClick={() => selectProject(project)}
+              className="flex-1 text-left truncate text-sm"
+            >
+             <>
+              <span className="mr-2">
+               {{
+                 purple: "🟣",
+                 blue: "🔵",
+                 green: "🟢",
+                 orange: "🟠",
+                 red: "🔴",
+               }[project.color]}
+             </span>
+
+             {project.name}
+           </>
+         </button>
+
+After Steps 4 and 5, deploy and show me the screenshot. Then we'll move to Project Categories (Research, CFA, ICAN, Actuarial, PhD Applications, etc.) before building Research Memory.
 
             <button
                  onClick={() => renameProject(project)}
