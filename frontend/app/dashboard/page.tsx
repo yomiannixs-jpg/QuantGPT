@@ -12,23 +12,32 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import "katex/dist/katex.min.css";
 
 const modes = [
-  "General AI Chat", "Research Assistant","Research Paper Analysis", "Economics Paper Review",
-  "Finance Paper Review", "Accounting Paper Review","Actuarial Paper Review", "Statistics Paper Review",
-  "Mathematics Paper Review", "Computer Science Paper Review", "Engineering Paper Review", 
+  "General AI Chat", "Research Assistant", "Research Paper Analysis", "Economics Paper Review",
+  "Finance Paper Review", "Accounting Paper Review", "Actuarial Paper Review", "Statistics Paper Review",
+  "Mathematics Paper Review", "Computer Science Paper Review", "Engineering Paper Review",
   "Machine Learning Paper Review", "Physics Paper Review", "Chemistry Paper Review", "Business Paper Review",
   "Marketing Paper Review", "Management Paper Review", "Healthcare Paper Review", "Law Paper Review",
-  "Public Policy Paper Review", "Climate Research Review", "Dissertation Review", "Journal Referee Mode", 
-  "Education Engine", "SAT Practice", "ACT Practice", "GRE Practice", "GMAT Practice","LSAT Practice", 
+  "Public Policy Paper Review", "Climate Research Review", "Dissertation Review", "Journal Referee Mode",
+  "Education Engine", "SAT Practice", "ACT Practice", "GRE Practice", "GMAT Practice", "LSAT Practice",
   "MCAT Practice", "Olympiads", "AP Exams", "WAEC Practice", "JAMB Practice", "IGCSE Practice", "A-Level Practice",
-  "Mathematics", "Pure Mathematics", "Applied Mathematics", "Academic Writing", "SOA Exam P", "SOA Exam FM", "IFOA CS1", "IFOA CM1",
-  "Statistics", "Finance", "CFA Exam", "Accounting", "ICAN Exam", "Economics", "Actuarial Science", "Physics", "Chemistry",
-  "Engineering", "Computer Science", "Data Science", "AI & Machine Learning", "Practice Questions", "File Analysis", "Stock Analysis",
+  "Mathematics", "Pure Mathematics", "Applied Mathematics", "Academic Writing",
+  "SOA Exam P", "SOA Exam FM", "IFOA CS1", "IFOA CM1",
+  "Statistics", "Finance", "CFA Exam", "Accounting", "ICAN Exam", "Economics",
+  "Actuarial Science", "Physics", "Chemistry", "Engineering", "Computer Science",
+  "Data Science", "AI & Machine Learning", "Practice Questions", "File Analysis", "Stock Analysis",
 ];
 
 type Message = { role: "user" | "assistant"; text: string };
 
+type Project = {
+  id: string;
+  name: string;
+  updatedAt: number;
+};
+
 type ChatSession = {
   id: string;
+  projectId: string;
   title: string;
   mode: string;
   messages: Message[];
@@ -40,11 +49,28 @@ const welcomeMessage: Message = {
   text: "Welcome to Quant GPT! I am an AI Engine Developed by YomiAnnixs. Feel free to inquire about topics in mathematics, finance, actuarial science, accounting, CFA, ICAN, economics, data analysis, research, coding, exam prep, Olympiads, or stock analysis.",
 };
 
-function createNewChat(): ChatSession {
+function createDefaultProject(): Project {
+  return {
+    id: "default-project",
+    name: "General Workspace",
+    updatedAt: Date.now(),
+  };
+}
+
+function createNewProject(name: string): Project {
   return {
     id: Date.now().toString(),
-    title: "New Chat",
-    mode: "General AI Chat",
+    name,
+    updatedAt: Date.now(),
+  };
+}
+
+function createNewChat(projectId: string, mode = "General AI Chat", title = "New Chat"): ChatSession {
+  return {
+    id: Date.now().toString(),
+    projectId,
+    title,
+    mode,
     messages: [welcomeMessage],
     updatedAt: Date.now(),
   };
@@ -57,64 +83,105 @@ function generateTitle(text: string) {
 
 export default function Dashboard() {
   const searchParams = useSearchParams();
+
   const [message, setMessage] = useState("");
   const [mode, setMode] = useState("General AI Chat");
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [chart, setChart] = useState<string | null>(null);
 
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [activeProjectId, setActiveProjectId] = useState("");
+
   const [chats, setChats] = useState<ChatSession[]>([]);
   const [activeChatId, setActiveChatId] = useState("");
 
+  const activeProject = projects.find((project) => project.id === activeProjectId);
   const activeChat = chats.find((chat) => chat.id === activeChatId);
   const messages = activeChat?.messages || [welcomeMessage];
 
+  const projectChats = chats
+    .filter((chat) => chat.projectId === activeProjectId)
+    .sort((a, b) => b.updatedAt - a.updatedAt);
+
   useEffect(() => {
     const urlMode = searchParams.get("mode");
+
+    const savedProjects = localStorage.getItem("quant-gpt-projects");
     const savedChats = localStorage.getItem("quant-ai-chats");
+    const savedActiveProjectId = localStorage.getItem("quant-gpt-active-project-id");
     const savedActiveChatId = localStorage.getItem("quant-ai-active-chat-id");
 
-    if (savedChats) {
-      const parsedChats: ChatSession[] = JSON.parse(savedChats);
+    let loadedProjects: Project[] = savedProjects ? JSON.parse(savedProjects) : [];
+    let loadedChats: ChatSession[] = savedChats ? JSON.parse(savedChats) : [];
 
-      if (parsedChats.length > 0) {
-        setChats(parsedChats);
-
-        const activeExists = parsedChats.some((chat) => chat.id === savedActiveChatId);
-        const selectedChatId = activeExists ? savedActiveChatId || parsedChats[0].id : parsedChats[0].id;
-
-        setActiveChatId(selectedChatId);
-
-        const selectedChat = parsedChats.find((c) => c.id === selectedChatId);
-        if (selectedChat) setMode(selectedChat.mode);
-        if (urlMode && modes.includes(urlMode)) {
-  setMode(urlMode);
-  setChats((prev) =>
-    prev.map((chat) =>
-      chat.id === selectedChatId
-        ? { ...chat, mode: urlMode, updatedAt: Date.now() }
-        : chat
-    )
-  );
-} else if (selectedChat) {
-  setMode(selectedChat.mode);
-}
-
-        return;
-      }
+    if (loadedProjects.length === 0) {
+      loadedProjects = [createDefaultProject()];
     }
 
-    const firstChat = createNewChat();
+    const defaultProjectId = loadedProjects[0].id;
 
-if (urlMode && modes.includes(urlMode)) {
-  firstChat.mode = urlMode;
-  firstChat.title = urlMode;
-}
+    loadedChats = loadedChats.map((chat) => ({
+      ...chat,
+      projectId: chat.projectId || defaultProjectId,
+    }));
 
-setChats([firstChat]);
-setActiveChatId(firstChat.id);
-setMode(firstChat.mode);
+    if (loadedChats.length === 0) {
+      loadedChats = [createNewChat(defaultProjectId)];
+    }
+
+    let selectedProjectId =
+      savedActiveProjectId && loadedProjects.some((project) => project.id === savedActiveProjectId)
+        ? savedActiveProjectId
+        : defaultProjectId;
+
+    if (urlMode && modes.includes(urlMode)) {
+      const newChat = createNewChat(selectedProjectId, urlMode, urlMode);
+      loadedChats = [newChat, ...loadedChats];
+
+      setProjects(loadedProjects);
+      setChats(loadedChats);
+      setActiveProjectId(selectedProjectId);
+      setActiveChatId(newChat.id);
+      setMode(urlMode);
+      return;
+    }
+
+    const chatsInSelectedProject = loadedChats.filter(
+      (chat) => chat.projectId === selectedProjectId
+    );
+
+    let selectedChatId =
+      savedActiveChatId && chatsInSelectedProject.some((chat) => chat.id === savedActiveChatId)
+        ? savedActiveChatId
+        : chatsInSelectedProject[0]?.id;
+
+    if (!selectedChatId) {
+      const newChat = createNewChat(selectedProjectId);
+      loadedChats = [newChat, ...loadedChats];
+      selectedChatId = newChat.id;
+    }
+
+    const selectedChat = loadedChats.find((chat) => chat.id === selectedChatId);
+
+    setProjects(loadedProjects);
+    setChats(loadedChats);
+    setActiveProjectId(selectedProjectId);
+    setActiveChatId(selectedChatId);
+    setMode(selectedChat?.mode || "General AI Chat");
   }, [searchParams]);
+
+  useEffect(() => {
+    if (projects.length > 0) {
+      localStorage.setItem("quant-gpt-projects", JSON.stringify(projects));
+    }
+  }, [projects]);
+
+  useEffect(() => {
+    if (activeProjectId) {
+      localStorage.setItem("quant-gpt-active-project-id", activeProjectId);
+    }
+  }, [activeProjectId]);
 
   useEffect(() => {
     if (chats.length > 0) {
@@ -132,11 +199,93 @@ setMode(firstChat.mode);
     setChats((prev) =>
       prev.map((chat) => (chat.id === activeChatId ? updater(chat) : chat))
     );
+
+    setProjects((prev) =>
+      prev.map((project) =>
+        project.id === activeProjectId
+          ? { ...project, updatedAt: Date.now() }
+          : project
+      )
+    );
+  }
+
+  function startNewProject() {
+    const projectName = window.prompt("Enter project name:");
+
+    if (!projectName || !projectName.trim()) return;
+
+    const newProject = createNewProject(projectName.trim());
+    const newChat = createNewChat(newProject.id);
+
+    setProjects((prev) => [newProject, ...prev]);
+    setChats((prev) => [newChat, ...prev]);
+
+    setActiveProjectId(newProject.id);
+    setActiveChatId(newChat.id);
+    setMode(newChat.mode);
+    setMessage("");
+    setSelectedFile(null);
+    setChart(null);
+  }
+
+  function selectProject(project: Project) {
+    const chatsInProject = chats
+      .filter((chat) => chat.projectId === project.id)
+      .sort((a, b) => b.updatedAt - a.updatedAt);
+
+    let selectedChat = chatsInProject[0];
+
+    if (!selectedChat) {
+      selectedChat = createNewChat(project.id);
+      setChats((prev) => [selectedChat, ...prev]);
+    }
+
+    setActiveProjectId(project.id);
+    setActiveChatId(selectedChat.id);
+    setMode(selectedChat.mode);
+    setMessage("");
+    setSelectedFile(null);
+    setChart(null);
+  }
+
+  function deleteProject(projectId: string) {
+    if (projects.length <= 1) {
+      alert("You must keep at least one project.");
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      "Delete this project and all chats inside it?"
+    );
+
+    if (!confirmDelete) return;
+
+    const remainingProjects = projects.filter((project) => project.id !== projectId);
+    const remainingChats = chats.filter((chat) => chat.projectId !== projectId);
+
+    const fallbackProject = remainingProjects[0];
+    let fallbackChat = remainingChats
+      .filter((chat) => chat.projectId === fallbackProject.id)
+      .sort((a, b) => b.updatedAt - a.updatedAt)[0];
+
+    if (!fallbackChat) {
+      fallbackChat = createNewChat(fallbackProject.id);
+      remainingChats.unshift(fallbackChat);
+    }
+
+    setProjects(remainingProjects);
+    setChats(remainingChats);
+    setActiveProjectId(fallbackProject.id);
+    setActiveChatId(fallbackChat.id);
+    setMode(fallbackChat.mode);
   }
 
   function startNewChat() {
-    const newChat = createNewChat();
+    if (!activeProjectId) return;
+
+    const newChat = createNewChat(activeProjectId);
     setChats((prev) => [newChat, ...prev]);
+
     setActiveChatId(newChat.id);
     setMode(newChat.mode);
     setMessage("");
@@ -155,17 +304,21 @@ setMode(firstChat.mode);
   function deleteChat(chatId: string) {
     setChats((prev) => {
       const remaining = prev.filter((chat) => chat.id !== chatId);
+      const remainingProjectChats = remaining.filter(
+        (chat) => chat.projectId === activeProjectId
+      );
 
-      if (remaining.length === 0) {
-        const newChat = createNewChat();
+      if (remainingProjectChats.length === 0) {
+        const newChat = createNewChat(activeProjectId);
         setActiveChatId(newChat.id);
         setMode(newChat.mode);
-        return [newChat];
+        return [newChat, ...remaining];
       }
 
       if (chatId === activeChatId) {
-        setActiveChatId(remaining[0].id);
-        setMode(remaining[0].mode);
+        const nextChat = remainingProjectChats.sort((a, b) => b.updatedAt - a.updatedAt)[0];
+        setActiveChatId(nextChat.id);
+        setMode(nextChat.mode);
       }
 
       return remaining;
@@ -335,11 +488,18 @@ setMode(firstChat.mode);
           <div>
             <h1 className="text-3xl font-bold mb-2">Quant GPT</h1>
             <p className="text-gray-400 text-sm mb-4">
-              One AI for learning, research, analysis and exam prep.
+              Research, learning, analytics and exam prep workspace.
             </p>
           </div>
 
           <div className="space-y-3">
+            <button
+              onClick={startNewProject}
+              className="w-full bg-purple-700 hover:bg-purple-800 rounded-xl p-3 font-semibold"
+            >
+              + New Project
+            </button>
+
             <button
               onClick={startNewChat}
               className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl p-3 font-semibold"
@@ -353,6 +513,39 @@ setMode(firstChat.mode);
             >
               ⬇ Export Chat
             </button>
+          </div>
+
+          <div className="border-t border-gray-800 pt-4">
+            <p className="text-gray-400 text-sm mb-3">Projects</p>
+
+            <div className="space-y-2 max-h-[22vh] overflow-y-auto pr-1">
+              {[...projects]
+                .sort((a, b) => b.updatedAt - a.updatedAt)
+                .map((project) => (
+                  <div
+                    key={project.id}
+                    className={`group flex items-center justify-between gap-2 rounded-xl px-3 py-2 cursor-pointer ${
+                      project.id === activeProjectId
+                        ? "bg-purple-900"
+                        : "bg-gray-900 hover:bg-gray-800"
+                    }`}
+                  >
+                    <button
+                      onClick={() => selectProject(project)}
+                      className="flex-1 text-left truncate text-sm"
+                    >
+                      {project.name}
+                    </button>
+
+                    <button
+                      onClick={() => deleteProject(project.id)}
+                      className="text-gray-500 hover:text-red-400 text-sm"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+            </div>
           </div>
 
           <div>
@@ -376,45 +569,45 @@ setMode(firstChat.mode);
           </div>
 
           <div className="border-t border-gray-800 pt-4">
-            <p className="text-gray-400 text-sm mb-3">Chats</p>
+            <p className="text-gray-400 text-sm mb-3">
+              Chats {activeProject ? `in ${activeProject.name}` : ""}
+            </p>
 
-            <div className="space-y-2 max-h-[45vh] overflow-y-auto pr-1">
-              {[...chats]
-                .sort((a, b) => b.updatedAt - a.updatedAt)
-                .map((chat) => (
-                  <div
-                    key={chat.id}
-                    className={`group flex items-center justify-between gap-2 rounded-xl px-3 py-2 cursor-pointer ${
-                      chat.id === activeChatId
-                        ? "bg-gray-800"
-                        : "bg-gray-900 hover:bg-gray-800"
-                    }`}
+            <div className="space-y-2 max-h-[28vh] overflow-y-auto pr-1">
+              {projectChats.map((chat) => (
+                <div
+                  key={chat.id}
+                  className={`group flex items-center justify-between gap-2 rounded-xl px-3 py-2 cursor-pointer ${
+                    chat.id === activeChatId
+                      ? "bg-gray-800"
+                      : "bg-gray-900 hover:bg-gray-800"
+                  }`}
+                >
+                  <button
+                    onClick={() => selectChat(chat)}
+                    className="flex-1 text-left truncate text-sm"
                   >
-                    <button
-                      onClick={() => selectChat(chat)}
-                      className="flex-1 text-left truncate text-sm"
-                    >
-                      {chat.title}
-                    </button>
+                    {chat.title}
+                  </button>
 
-                    <button
-                      onClick={() => deleteChat(chat.id)}
-                      className="text-gray-500 hover:text-red-400 text-sm"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
+                  <button
+                    onClick={() => deleteChat(chat.id)}
+                    className="text-gray-500 hover:text-red-400 text-sm"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="hidden lg:block space-y-3 text-sm text-gray-400 mt-4">
             <p>Core Engines:</p>
+            <p>• Research Projects</p>
             <p>• AI Chat</p>
             <p>• Research Assistant</p>
-            <p>• Math & Science Solver</p>
-            <p>• Finance & Stock Analysis</p>
-            <p>• Accounting / CFA / ICAN</p>
+            <p>• Paper Review</p>
+            <p>• Finance / CFA / ICAN</p>
             <p>• Actuarial Science</p>
             <p>• File Intelligence</p>
           </div>
@@ -424,7 +617,7 @@ setMode(firstChat.mode);
       <section className="flex-1 flex flex-col min-h-[calc(100vh-230px)] lg:min-h-screen">
         <div className="border-b border-gray-800 p-4 lg:p-5">
           <h2 className="text-xl lg:text-2xl font-semibold">
-            {activeChat?.title || mode}
+            {activeProject?.name || "Quant GPT"} / {activeChat?.title || mode}
           </h2>
           <p className="text-gray-400 text-xs lg:text-sm">
             Mode: {mode} · Connected through NEXT_PUBLIC_API_URL
