@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -55,6 +56,7 @@ function generateTitle(text: string) {
 }
 
 export default function Dashboard() {
+  const searchParams = useSearchParams();
   const [message, setMessage] = useState("");
   const [mode, setMode] = useState("General AI Chat");
   const [loading, setLoading] = useState(false);
@@ -68,6 +70,7 @@ export default function Dashboard() {
   const messages = activeChat?.messages || [welcomeMessage];
 
   useEffect(() => {
+    const urlMode = searchParams.get("mode");
     const savedChats = localStorage.getItem("quant-ai-chats");
     const savedActiveChatId = localStorage.getItem("quant-ai-active-chat-id");
 
@@ -84,16 +87,34 @@ export default function Dashboard() {
 
         const selectedChat = parsedChats.find((c) => c.id === selectedChatId);
         if (selectedChat) setMode(selectedChat.mode);
+        if (urlMode && modes.includes(urlMode)) {
+  setMode(urlMode);
+  setChats((prev) =>
+    prev.map((chat) =>
+      chat.id === selectedChatId
+        ? { ...chat, mode: urlMode, updatedAt: Date.now() }
+        : chat
+    )
+  );
+} else if (selectedChat) {
+  setMode(selectedChat.mode);
+}
 
         return;
       }
     }
 
     const firstChat = createNewChat();
-    setChats([firstChat]);
-    setActiveChatId(firstChat.id);
-    setMode(firstChat.mode);
-  }, []);
+
+if (urlMode && modes.includes(urlMode)) {
+  firstChat.mode = urlMode;
+  firstChat.title = urlMode;
+}
+
+setChats([firstChat]);
+setActiveChatId(firstChat.id);
+setMode(firstChat.mode);
+  }, [searchParams]);
 
   useEffect(() => {
     if (chats.length > 0) {
