@@ -272,7 +272,23 @@ setProjectFiles(loadedProjectFiles);
     setSelectedFile(null);
     setChart(null);
   }
+     function renameProject(project: Project) {
+  const newName = window.prompt("Rename project", project.name);
 
+  if (!newName || !newName.trim()) return;
+
+  setProjects((prev) =>
+    prev.map((item) =>
+      item.id === project.id
+        ? {
+            ...item,
+            name: newName.trim(),
+            updatedAt: Date.now(),
+          }
+        : item
+    )
+  );
+} 
   function selectProject(project: Project) {
     const chatsInProject = chats
       .filter((chat) => chat.projectId === project.id)
@@ -572,12 +588,27 @@ setProjectFiles((prev) => [fileRecord, ...prev]);
               project.id === activeProjectId ? "bg-purple-900" : "bg-gray-900 hover:bg-gray-800"
             }`}
           >
-            <button onClick={() => selectProject(project)} className="flex-1 text-left truncate text-sm">
-              {project.name}
+             <button
+                onClick={() => selectProject(project)}
+                className="flex-1 text-left truncate text-sm"
+          >
+                {project.name}
             </button>
 
-            <button onClick={() => deleteProject(project.id)} className="text-gray-500 hover:text-red-400 text-sm">
-              ×
+            <button
+                 onClick={() => renameProject(project)}
+                 className="text-gray-500 hover:text-blue-400 text-sm"
+                 title="Rename project"
+             >
+                 ✏
+            </button>
+
+            <button  
+                 onClick={() => deleteProject(project.id)}
+                 className="text-gray-500 hover:text-red-400 text-sm"
+                 title="Delete project"
+             >
+                 ×
             </button>
           </div>
         ))}
