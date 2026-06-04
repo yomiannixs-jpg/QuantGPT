@@ -33,6 +33,7 @@ type Project = {
   id: string;
   name: string;
   color: string;
+  category: string;
   updatedAt: number;
 };
 const projectColors: Record<string, string> = {
@@ -41,6 +42,16 @@ const projectColors: Record<string, string> = {
   green: "bg-green-900",
   orange: "bg-orange-900",
   red: "bg-red-900",
+};
+  const projectCategories: Record<string, string> = {
+  research: "📚 Research",
+  finance: "📈 Finance",
+  cfa: "📊 CFA",
+  ican: "🧾 ICAN",
+  actuarial: "📐 Actuarial",
+  phd: "🎓 PhD Applications",
+  papers: "📄 Papers",
+  datasets: "📂 Datasets",
 };
 type ProjectFile = {
   id: string;
@@ -70,6 +81,7 @@ function createDefaultProject(): Project {
     id: "default-project",
     name: "General Workspace",
     color: "purple",
+    category: "research",
     updatedAt: Date.now(),
   };
 }
@@ -79,6 +91,7 @@ function createNewProject(name: string): Project {
     id: Date.now().toString(),
     name,
     color: "purple",
+    category: "research",
     updatedAt: Date.now(),
   };
 }
@@ -159,6 +172,7 @@ function DashboardContent() {
   ? JSON.parse(savedProjects).map((p: any) => ({
       ...p,
       color: p.color || "purple",
+      category: p.category || "research",
     }))
   : [];
     let loadedChats: ChatSession[] = savedChats ? JSON.parse(savedChats) : [];
@@ -279,12 +293,35 @@ setProjectFiles(loadedProjectFiles);
      const randomColor =
      colors[Math.floor(Math.random() * colors.length)];
  
-     const newProject: Project = {
-      id: Date.now().toString(),
-      name: projectName.trim(),
-      color: randomColor,
-      updatedAt: Date.now(),
-  };
+     const categoryInput = window.prompt(
+  "Choose project category: research, finance, cfa, ican, actuarial, phd, papers, datasets",
+  "research"
+);
+
+const allowedCategories = [
+  "research",
+  "finance",
+  "cfa",
+  "ican",
+  "actuarial",
+  "phd",
+  "papers",
+  "datasets",
+];
+
+const selectedCategory = allowedCategories.includes(
+  (categoryInput || "").toLowerCase().trim()
+)
+  ? (categoryInput || "").toLowerCase().trim()
+  : "research";
+
+const newProject: Project = {
+  id: Date.now().toString(),
+  name: projectName.trim(),
+  color: randomColor,
+  category: selectedCategory,
+  updatedAt: Date.now(),
+};
 
   const newChat = createNewChat(newProject.id);
 
@@ -621,16 +658,22 @@ setProjectFiles(loadedProjectFiles);
               className="flex-1 text-left truncate text-sm"
             >
              <>
-              <span className="mr-2">
-               {{
-                 purple: "🟣",
-                 blue: "🔵",
-                 green: "🟢",
-                 orange: "🟠",
-                 red: "🔴",
-                }[project.color] || "🟣"}
-             </span>
-             {project.name}
+              <span className="block truncate">
+               <span className="mr-2">
+              {{
+               purple: "🟣",
+               blue: "🔵",
+               green: "🟢",
+               orange: "🟠",
+               red: "🔴",
+               }[project.color || "purple"]}
+               </span>
+            {project.name}
+           </span>
+
+            <span className="block text-[10px] text-gray-400 truncate mt-0.5">
+            {projectCategories[project.category || "research"]}
+           </span>
            </>
          </button>
 
