@@ -652,8 +652,11 @@ setProjectFiles((prev) => [fileRecord, ...prev]);
     )}
   </div>
 </div>
-            <select
-              value={mode}
+
+<div>
+  <p className="text-gray-400 text-sm mb-2">Mode</p>
+  <select
+    value={mode}
               onChange={(e) => {
                 setMode(e.target.value);
                 updateActiveChat((chat) => ({
