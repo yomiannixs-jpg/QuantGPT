@@ -65,10 +65,11 @@ const welcomeMessage: Message = {
   text: "Welcome to Quant GPT! I am an AI Engine Developed by YomiAnnixs. Feel free to inquire about topics in mathematics, finance, actuarial science, accounting, CFA, ICAN, economics, data analysis, research, coding, exam prep, Olympiads, or stock analysis.",
 };
 
-function createDefaultProject(): Project {
+function createNewProject(name: string): Project {
   return {
-    id: "default-project",
-    name: "General Workspace",
+    id: Date.now().toString(),
+    name,
+    color: "purple",
     updatedAt: Date.now(),
   };
 }
