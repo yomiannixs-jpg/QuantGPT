@@ -34,6 +34,14 @@ type Project = {
   name: string;
   updatedAt: number;
 };
+type ProjectFile = {
+  id: string;
+  projectId: string;
+  name: string;
+  type: string;
+  uploadedAt: number;
+  analysis?: string;
+};
 
 type ChatSession = {
   id: string;
@@ -91,29 +99,46 @@ export default function Dashboard() {
   const [chart, setChart] = useState<string | null>(null);
 
   const [projects, setProjects] = useState<Project[]>([]);
+  const [projectFiles, setProjectFiles] = useState<ProjectFile[]>([]);
   const [activeProjectId, setActiveProjectId] = useState("");
 
   const [chats, setChats] = useState<ChatSession[]>([]);
   const [activeChatId, setActiveChatId] = useState("");
 
-  const activeProject = projects.find((project) => project.id === activeProjectId);
-  const activeChat = chats.find((chat) => chat.id === activeChatId);
+  const activeProject = projects.find(
+  (project) => project.id === activeProjectId
+);
+
+  const activeChat = chats.find(
+  (chat) => chat.id === activeChatId
+);
+
   const messages = activeChat?.messages || [welcomeMessage];
 
   const projectChats = chats
-    .filter((chat) => chat.projectId === activeProjectId)
-    .sort((a, b) => b.updatedAt - a.updatedAt);
+  .filter((chat) => chat.projectId === activeProjectId)
+  .sort((a, b) => b.updatedAt - a.updatedAt);
+
+  const activeProjectFiles = projectFiles
+  .filter((file) => file.projectId === activeProjectId)
+  .sort((a, b) => b.uploadedAt - a.uploadedAt);
 
   useEffect(() => {
     const urlMode = searchParams.get("mode");
 
     const savedProjects = localStorage.getItem("quant-gpt-projects");
     const savedChats = localStorage.getItem("quant-ai-chats");
+    const savedProjectFiles = localStorage.getItem("quant-gpt-project-files");
     const savedActiveProjectId = localStorage.getItem("quant-gpt-active-project-id");
     const savedActiveChatId = localStorage.getItem("quant-ai-active-chat-id");
 
     let loadedProjects: Project[] = savedProjects ? JSON.parse(savedProjects) : [];
     let loadedChats: ChatSession[] = savedChats ? JSON.parse(savedChats) : [];
+    const loadedProjectFiles: ProjectFile[] = savedProjectFiles
+  ? JSON.parse(savedProjectFiles)
+  : [];
+
+setProjectFiles(loadedProjectFiles);
 
     if (loadedProjects.length === 0) {
       loadedProjects = [createDefaultProject()];
@@ -188,6 +213,13 @@ export default function Dashboard() {
       localStorage.setItem("quant-ai-chats", JSON.stringify(chats));
     }
   }, [chats]);
+
+  useEffect(() => {
+  localStorage.setItem(
+    "quant-gpt-project-files",
+    JSON.stringify(projectFiles)
+  );
+}, [projectFiles]);
 
   useEffect(() => {
     if (activeChatId) {
@@ -448,6 +480,16 @@ export default function Dashboard() {
       });
 
       const data = await res.json();
+      const fileRecord: ProjectFile = {
+      id: Date.now().toString(),
+      projectId: activeProjectId,
+      name: selectedFile.name,
+      type: selectedFile.type || "unknown",
+      uploadedAt: Date.now(),
+      analysis: data.response || "",
+     };
+
+setProjectFiles((prev) => [fileRecord, ...prev]);
 
       setChart(data.chart || null);
 
@@ -548,8 +590,68 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div>
-            <p className="text-gray-400 text-sm mb-2">Mode</p>
+         <div className="border-t border-gray-800 pt-4">
+  <p className="text-gray-400 text-sm mb-3">
+    Files {activeProject ? `in ${activeProject.name}` : ""}
+  </p>
+
+  <div className="space-y-2 max-h-[20vh] overflow-y-auto pr-1">
+    {activeProjectFiles.length === 0 ? (
+      <p className="text-xs text-gray-500">No files uploaded yet.</p>
+    ) : (
+      activeProjectFiles.map((file) => (
+        <div
+          key={file.id}
+          className="bg-gray-900 hover:bg-gray-800 rounded-xl px-3 py-2"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <button
+              className="flex-1 text-left truncate text-sm"
+              onClick={() => {
+                if (!file.analysis) return;
+
+                const fileChat: ChatSession = {
+                  id: Date.now().toString(),
+                  projectId: activeProjectId,
+                  title: `File: ${file.name}`,
+                  mode: "File Analysis",
+                  messages: [
+                    {
+                      role: "user",
+                      text: `Open previous file analysis: ${file.name}`,
+                    },
+                    {
+                      role: "assistant",
+                      text: file.analysis,
+                    },
+                  ],
+                  updatedAt: Date.now(),
+                };
+
+                setChats((prev) => [fileChat, ...prev]);
+                setActiveChatId(fileChat.id);
+                setMode("File Analysis");
+              }}
+            >
+              📄 {file.name}
+            </button>
+
+            <button
+              onClick={() =>
+                setProjectFiles((prev) =>
+                  prev.filter((item) => item.id !== file.id)
+                )
+              }
+              className="text-gray-500 hover:text-red-400"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      ))
+    )}
+  </div>
+</div>
             <select
               value={mode}
               onChange={(e) => {
