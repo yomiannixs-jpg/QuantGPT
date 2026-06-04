@@ -65,10 +65,10 @@ const welcomeMessage: Message = {
   text: "Welcome to Quant GPT! I am an AI Engine Developed by YomiAnnixs. Feel free to inquire about topics in mathematics, finance, actuarial science, accounting, CFA, ICAN, economics, data analysis, research, coding, exam prep, Olympiads, or stock analysis.",
 };
 
-function createNewProject(name: string): Project {
+function createDefaultProject(): Project {
   return {
-    id: Date.now().toString(),
-    name,
+    id: "default-project",
+    name: "General Workspace",
     color: "purple",
     updatedAt: Date.now(),
   };
@@ -78,6 +78,7 @@ function createNewProject(name: string): Project {
   return {
     id: Date.now().toString(),
     name,
+    color: "purple",
     updatedAt: Date.now(),
   };
 }
@@ -154,7 +155,12 @@ function DashboardContent() {
     const savedActiveProjectId = localStorage.getItem("quant-gpt-active-project-id");
     const savedActiveChatId = localStorage.getItem("quant-ai-active-chat-id");
 
-    let loadedProjects: Project[] = savedProjects ? JSON.parse(savedProjects) : [];
+    let loadedProjects: Project[] = savedProjects
+  ? JSON.parse(savedProjects).map((p: any) => ({
+      ...p,
+      color: p.color || "purple",
+    }))
+  : [];
     let loadedChats: ChatSession[] = savedChats ? JSON.parse(savedChats) : [];
     const loadedProjectFiles: ProjectFile[] = savedProjectFiles
   ? JSON.parse(savedProjectFiles)
@@ -538,7 +544,7 @@ setProjectFiles(loadedProjectFiles);
       analysis: data.response || "",
      };
 
-setProjectFiles((prev) => [fileRecord, ...prev]);
+      setProjectFiles((prev) => [fileRecord, ...prev]);
 
       setChart(data.chart || null);
 
@@ -627,8 +633,6 @@ setProjectFiles((prev) => [fileRecord, ...prev]);
              {project.name}
            </>
          </button>
-
-After Steps 4 and 5, deploy and show me the screenshot. Then we'll move to Project Categories (Research, CFA, ICAN, Actuarial, PhD Applications, etc.) before building Research Memory.
 
             <button
                  onClick={() => renameProject(project)}
