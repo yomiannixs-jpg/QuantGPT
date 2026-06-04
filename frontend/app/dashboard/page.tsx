@@ -700,53 +700,46 @@ setProjectFiles((prev) => [fileRecord, ...prev]);
   </div>
 </aside>
 
-      <section className="flex-1 flex flex-col min-h-[calc(100vh-230px)] lg:min-h-screen">
-        <div className="border-b border-gray-800 p-4 lg:p-5">
-  <h2 className="text-xl lg:text-2xl font-semibold">
-    {activeProject?.name || "Quant GPT"} / {activeChat?.title || mode}
-  </h2>
+         <section className="flex-1 flex flex-col min-h-[calc(100vh-230px)] lg:min-h-screen">
+  <div className="border-b border-gray-800 p-4 lg:p-5">
+      <h2 className="text-xl lg:text-2xl font-semibold mb-2">
+        {activeProject?.name || "Quant GPT"} / {activeChat?.title || mode}
+      </h2>
 
-  <p className="text-gray-400 text-xs lg:text-sm mb-4">
-    Mode: {mode} · Connected through NEXT_PUBLIC_API_URL
-  </p>
-
-  <div className="grid md:grid-cols-4 gap-4">
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-      <div className="text-gray-400 text-sm">Chats</div>
-      <div className="text-3xl font-bold">
-        {activeProjectChatCount}
+      <p className="text-gray-400 text-xs lg:text-sm mb-4">
+         Mode: {mode}
+       </p>
+    
+    <div className="grid md:grid-cols-4 gap-4">
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <div className="text-gray-400 text-sm">Chats</div>
+        <div className="text-3xl font-bold">
+          {activeProjectChatCount}
+        </div>
       </div>
-    </div>
 
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-      <div className="text-gray-400 text-sm">Files</div>
-      <div className="text-3xl font-bold">
-        {activeProjectFileCount}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <div className="text-gray-400 text-sm">Files</div>
+        <div className="text-3xl font-bold">
+          {activeProjectFileCount}
+        </div>
       </div>
-    </div>
 
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-      <div className="text-gray-400 text-sm">Latest File</div>
-      <div className="truncate">
-        {mostRecentFile?.name || "None"}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <div className="text-gray-400 text-sm">Latest File</div>
+        <div className="truncate">
+          {mostRecentFile?.name || "None"}
+        </div>
       </div>
-    </div>
 
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-      <div className="text-gray-400 text-sm">Latest Chat</div>
-      <div className="truncate">
-        {mostRecentChat?.title || "None"}
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+        <div className="text-gray-400 text-sm">Latest Chat</div>
+        <div className="truncate">
+          {mostRecentChat?.title || "None"}
+        </div>
       </div>
     </div>
   </div>
-</div>
-          <h2 className="text-xl lg:text-2xl font-semibold">
-            {activeProject?.name || "Quant GPT"} / {activeChat?.title || mode}
-          </h2>
-          <p className="text-gray-400 text-xs lg:text-sm">
-            Mode: {mode} · Connected through NEXT_PUBLIC_API_URL
-          </p>
-        </div>
 
         <div className="flex-1 p-4 lg:p-6 overflow-y-auto space-y-4">
           {messages.map((msg, index) => (
