@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
@@ -89,7 +89,7 @@ function generateTitle(text: string) {
   return cleaned.length > 34 ? cleaned.slice(0, 34) + "..." : cleaned || "New Chat";
 }
 
-export default function Dashboard() {
+function DashboardContent() {
   const searchParams = useSearchParams();
 
   const [message, setMessage] = useState("");
@@ -107,8 +107,7 @@ export default function Dashboard() {
 
   const activeProject = projects.find(
   (project) => project.id === activeProjectId
-);
-
+);  
   const activeChat = chats.find(
   (chat) => chat.id === activeChatId
 );
@@ -727,7 +726,8 @@ setProjectFiles((prev) => [fileRecord, ...prev]);
                   remarkPlugins={[remarkMath]}
                   rehypePlugins={[rehypeRaw, rehypeKatex]}
                   components={{
-                    code({ className, children }) {
+                    code(props) {
+                      const { className, children } = props; 
                       const match = /language-(\w+)/.exec(className || "");
 
                       return match ? (
@@ -849,5 +849,18 @@ setProjectFiles((prev) => [fileRecord, ...prev]);
         </div>
       </section>
     </main>
+  );
+}
+export default function Dashboard() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-black text-white p-6">
+          Loading Quant GPT...
+        </main>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }
