@@ -621,9 +621,8 @@ setProjectFiles((prev) => [fileRecord, ...prev]);
                  green: "🟢",
                  orange: "🟠",
                  red: "🔴",
-               }[project.color]}
+                }[project.color] || "🟣"}
              </span>
-
              {project.name}
            </>
          </button>
