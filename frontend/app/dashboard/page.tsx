@@ -525,199 +525,167 @@ setProjectFiles((prev) => [fileRecord, ...prev]);
 
   return (
     <main className="min-h-screen bg-black text-white flex flex-col lg:flex-row">
-      <aside className="w-full lg:w-80 bg-gray-950 border-b lg:border-b-0 lg:border-r border-gray-800 p-4 lg:p-5">
-        <div className="flex flex-col gap-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Quant GPT</h1>
-            <p className="text-gray-400 text-sm mb-4">
-              Research, learning, analytics and exam prep workspace.
-            </p>
-          </div>
+    <aside className="w-full lg:w-80 bg-gray-950 border-b lg:border-b-0 lg:border-r border-gray-800 p-4 lg:p-5">
+  <div className="flex flex-col gap-4">
+    <div>
+      <h1 className="text-3xl font-bold mb-2">Quant GPT</h1>
+      <p className="text-gray-400 text-sm mb-4">
+        Research, learning, analytics and exam prep workspace.
+      </p>
+    </div>
 
-          <div className="space-y-3">
-            <button
-              onClick={startNewProject}
-              className="w-full bg-purple-700 hover:bg-purple-800 rounded-xl p-3 font-semibold"
-            >
-              + New Project
+    <div className="space-y-3">
+      <button onClick={startNewProject} className="w-full bg-purple-700 hover:bg-purple-800 rounded-xl p-3 font-semibold">
+        + New Project
+      </button>
+
+      <button onClick={startNewChat} className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl p-3 font-semibold">
+        + New Chat
+      </button>
+
+      <button onClick={exportChat} className="w-full bg-gray-800 hover:bg-gray-700 rounded-xl p-3 font-semibold">
+        ⬇ Export Chat
+      </button>
+    </div>
+
+    <div className="border-t border-gray-800 pt-4">
+      <p className="text-gray-400 text-sm mb-3">Projects</p>
+
+      <div className="space-y-2 max-h-[22vh] overflow-y-auto pr-1">
+        {[...projects].sort((a, b) => b.updatedAt - a.updatedAt).map((project) => (
+          <div
+            key={project.id}
+            className={`group flex items-center justify-between gap-2 rounded-xl px-3 py-2 cursor-pointer ${
+              project.id === activeProjectId ? "bg-purple-900" : "bg-gray-900 hover:bg-gray-800"
+            }`}
+          >
+            <button onClick={() => selectProject(project)} className="flex-1 text-left truncate text-sm">
+              {project.name}
             </button>
 
-            <button
-              onClick={startNewChat}
-              className="w-full bg-blue-600 hover:bg-blue-700 rounded-xl p-3 font-semibold"
-            >
-              + New Chat
-            </button>
-
-            <button
-              onClick={exportChat}
-              className="w-full bg-gray-800 hover:bg-gray-700 rounded-xl p-3 font-semibold"
-            >
-              ⬇ Export Chat
-            </button>
-          </div>
-
-          <div className="border-t border-gray-800 pt-4">
-            <p className="text-gray-400 text-sm mb-3">Projects</p>
-
-            <div className="space-y-2 max-h-[22vh] overflow-y-auto pr-1">
-              {[...projects]
-                .sort((a, b) => b.updatedAt - a.updatedAt)
-                .map((project) => (
-                  <div
-                    key={project.id}
-                    className={`group flex items-center justify-between gap-2 rounded-xl px-3 py-2 cursor-pointer ${
-                      project.id === activeProjectId
-                        ? "bg-purple-900"
-                        : "bg-gray-900 hover:bg-gray-800"
-                    }`}
-                  >
-                    <button
-                      onClick={() => selectProject(project)}
-                      className="flex-1 text-left truncate text-sm"
-                    >
-                      {project.name}
-                    </button>
-
-                    <button
-                      onClick={() => deleteProject(project.id)}
-                      className="text-gray-500 hover:text-red-400 text-sm"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-            </div>
-          </div>
-
-         <div className="border-t border-gray-800 pt-4">
-  <p className="text-gray-400 text-sm mb-3">
-    Files {activeProject ? `in ${activeProject.name}` : ""}
-  </p>
-
-  <div className="space-y-2 max-h-[20vh] overflow-y-auto pr-1">
-    {activeProjectFiles.length === 0 ? (
-      <p className="text-xs text-gray-500">No files uploaded yet.</p>
-    ) : (
-      activeProjectFiles.map((file) => (
-        <div
-          key={file.id}
-          className="bg-gray-900 hover:bg-gray-800 rounded-xl px-3 py-2"
-        >
-          <div className="flex items-center justify-between gap-2">
-            <button
-              className="flex-1 text-left truncate text-sm"
-              onClick={() => {
-                if (!file.analysis) return;
-
-                const fileChat: ChatSession = {
-                  id: Date.now().toString(),
-                  projectId: activeProjectId,
-                  title: `File: ${file.name}`,
-                  mode: "File Analysis",
-                  messages: [
-                    {
-                      role: "user",
-                      text: `Open previous file analysis: ${file.name}`,
-                    },
-                    {
-                      role: "assistant",
-                      text: file.analysis,
-                    },
-                  ],
-                  updatedAt: Date.now(),
-                };
-
-                setChats((prev) => [fileChat, ...prev]);
-                setActiveChatId(fileChat.id);
-                setMode("File Analysis");
-              }}
-            >
-              📄 {file.name}
-            </button>
-
-            <button
-              onClick={() =>
-                setProjectFiles((prev) =>
-                  prev.filter((item) => item.id !== file.id)
-                )
-              }
-              className="text-gray-500 hover:text-red-400"
-            >
+            <button onClick={() => deleteProject(project.id)} className="text-gray-500 hover:text-red-400 text-sm">
               ×
             </button>
           </div>
-        </div>
-      ))
-    )}
-  </div>
-</div>
+        ))}
+      </div>
+    </div>
 
-<div>
-  <p className="text-gray-400 text-sm mb-2">Mode</p>
-  <select
-    value={mode}
-              onChange={(e) => {
-                setMode(e.target.value);
-                updateActiveChat((chat) => ({
-                  ...chat,
-                  mode: e.target.value,
-                  updatedAt: Date.now(),
-                }));
-              }}
-              className="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white"
-            >
-              {modes.map((item) => (
-                <option key={item}>{item}</option>
-              ))}
-            </select>
-          </div>
+    <div className="border-t border-gray-800 pt-4">
+      <p className="text-gray-400 text-sm mb-3">
+        Files {activeProject ? `in ${activeProject.name}` : ""}
+      </p>
 
-          <div className="border-t border-gray-800 pt-4">
-            <p className="text-gray-400 text-sm mb-3">
-              Chats {activeProject ? `in ${activeProject.name}` : ""}
-            </p>
+      <div className="space-y-2 max-h-[20vh] overflow-y-auto pr-1">
+        {activeProjectFiles.length === 0 ? (
+          <p className="text-xs text-gray-500">No files uploaded yet.</p>
+        ) : (
+          activeProjectFiles.map((file) => (
+            <div key={file.id} className="bg-gray-900 hover:bg-gray-800 rounded-xl px-3 py-2">
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  className="flex-1 text-left truncate text-sm"
+                  onClick={() => {
+                    if (!file.analysis) return;
 
-            <div className="space-y-2 max-h-[28vh] overflow-y-auto pr-1">
-              {projectChats.map((chat) => (
-                <div
-                  key={chat.id}
-                  className={`group flex items-center justify-between gap-2 rounded-xl px-3 py-2 cursor-pointer ${
-                    chat.id === activeChatId
-                      ? "bg-gray-800"
-                      : "bg-gray-900 hover:bg-gray-800"
-                  }`}
+                    const fileChat: ChatSession = {
+                      id: Date.now().toString(),
+                      projectId: activeProjectId,
+                      title: `File: ${file.name}`,
+                      mode: "File Analysis",
+                      messages: [
+                        {
+                          role: "user",
+                          text: `Open previous file analysis: ${file.name}`,
+                        },
+                        {
+                          role: "assistant",
+                          text: file.analysis,
+                        },
+                      ],
+                      updatedAt: Date.now(),
+                    };
+
+                    setChats((prev) => [fileChat, ...prev]);
+                    setActiveChatId(fileChat.id);
+                    setMode("File Analysis");
+                  }}
                 >
-                  <button
-                    onClick={() => selectChat(chat)}
-                    className="flex-1 text-left truncate text-sm"
-                  >
-                    {chat.title}
-                  </button>
+                  📄 {file.name}
+                </button>
 
-                  <button
-                    onClick={() => deleteChat(chat.id)}
-                    className="text-gray-500 hover:text-red-400 text-sm"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
+                <button
+                  onClick={() =>
+                    setProjectFiles((prev) => prev.filter((item) => item.id !== file.id))
+                  }
+                  className="text-gray-500 hover:text-red-400"
+                >
+                  ×
+                </button>
+              </div>
             </div>
-          </div>
+          ))
+        )}
+      </div>
+    </div>
 
-          <div className="hidden lg:block space-y-3 text-sm text-gray-400 mt-4">
-            <p>Core Engines:</p>
-            <p>• Research Projects</p>
-            <p>• AI Chat</p>
-            <p>• Research Assistant</p>
-            <p>• Paper Review</p>
-            <p>• Finance / CFA / ICAN</p>
-            <p>• Actuarial Science</p>
-            <p>• File Intelligence</p>
+    <div>
+      <p className="text-gray-400 text-sm mb-2">Mode</p>
+      <select
+        value={mode}
+        onChange={(e) => {
+          setMode(e.target.value);
+          updateActiveChat((chat) => ({
+            ...chat,
+            mode: e.target.value,
+            updatedAt: Date.now(),
+          }));
+        }}
+        className="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white"
+      >
+        {modes.map((item) => (
+          <option key={item}>{item}</option>
+        ))}
+      </select>
+    </div>
+
+    <div className="border-t border-gray-800 pt-4">
+      <p className="text-gray-400 text-sm mb-3">
+        Chats {activeProject ? `in ${activeProject.name}` : ""}
+      </p>
+
+      <div className="space-y-2 max-h-[28vh] overflow-y-auto pr-1">
+        {projectChats.map((chat) => (
+          <div
+            key={chat.id}
+            className={`group flex items-center justify-between gap-2 rounded-xl px-3 py-2 cursor-pointer ${
+              chat.id === activeChatId ? "bg-gray-800" : "bg-gray-900 hover:bg-gray-800"
+            }`}
+          >
+            <button onClick={() => selectChat(chat)} className="flex-1 text-left truncate text-sm">
+              {chat.title}
+            </button>
+
+            <button onClick={() => deleteChat(chat.id)} className="text-gray-500 hover:text-red-400 text-sm">
+              ×
+            </button>
           </div>
-        </div>
-      </aside>
+        ))}
+      </div>
+    </div>
+
+    <div className="hidden lg:block space-y-3 text-sm text-gray-400 mt-4">
+      <p>Core Engines:</p>
+      <p>• Research Projects</p>
+      <p>• AI Chat</p>
+      <p>• Research Assistant</p>
+      <p>• Paper Review</p>
+      <p>• Finance / CFA / ICAN</p>
+      <p>• Actuarial Science</p>
+      <p>• File Intelligence</p>
+    </div>
+  </div>
+</aside>
 
       <section className="flex-1 flex flex-col min-h-[calc(100vh-230px)] lg:min-h-screen">
         <div className="border-b border-gray-800 p-4 lg:p-5">
