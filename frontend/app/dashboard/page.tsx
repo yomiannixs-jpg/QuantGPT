@@ -645,6 +645,26 @@ const newProject: Project = {
      )
    );
 }
+  function addProjectMemory(text: string) {
+  if (!activeProjectId) return;
+
+  setProjectMemories((prev) =>
+    prev.map((memory) =>
+      memory.projectId === activeProjectId
+        ? {
+            ...memory,
+            items: [
+              ...memory.items,
+              {
+                text,
+                createdAt: Date.now(),
+              },
+            ],
+          }
+        : memory
+    )
+  );
+}
   function openLatestFileAnalysis() {
   if (!mostRecentFile?.analysis || !activeProjectId) return;
 
@@ -669,6 +689,7 @@ const newProject: Project = {
   setChats((prev) => [fileChat, ...prev]);
   setActiveChatId(fileChat.id);
   setMode("File Analysis");
+  addProjectMemory(`Opened analysis for ${mostRecentFile.name}`);
 }
   function exportChat() {
     if (!activeChat) return;
@@ -1347,6 +1368,7 @@ const newProject: Project = {
     onClick={() => {
       if (!mostRecentFile) return;
       setMessage(`Ask a question about this file: ${mostRecentFile.name}`);
+      addProjectMemory(`Asked about ${mostRecentFile.name}`);
     }}
     disabled={!mostRecentFile}
     className="bg-purple-700 hover:bg-purple-800 disabled:bg-gray-700 rounded-xl px-4 py-2 text-sm font-semibold"
@@ -1358,6 +1380,7 @@ const newProject: Project = {
     onClick={() => {
       if (!mostRecentFile) return;
       setMessage(`Summarize the uploaded file: ${mostRecentFile.name}`);
+      addProjectMemory(`Requested summary for ${mostRecentFile.name}`);
     }}
     disabled={!mostRecentFile}
     className="bg-green-700 hover:bg-green-800 disabled:bg-gray-700 rounded-xl px-4 py-2 text-sm font-semibold"
