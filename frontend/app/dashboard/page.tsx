@@ -691,6 +691,55 @@ const newProject: Project = {
   setMode("File Analysis");
   addProjectMemory(`Opened analysis for ${mostRecentFile.name}`);
 }
+  function clearProjectMemory() {
+  if (!activeProjectId) return;
+
+  const confirmClear = window.confirm(
+    "Clear all memory/timeline entries for this project?"
+  );
+
+  if (!confirmClear) return;
+
+  setProjectMemories((prev) =>
+    prev.map((memory) =>
+      memory.projectId === activeProjectId
+        ? { ...memory, items: [] }
+        : memory
+    )
+  );
+}
+
+function clearProjectNotes() {
+  if (!activeProjectId) return;
+
+  const confirmClear = window.confirm(
+    "Clear project notes?"
+  );
+
+  if (!confirmClear) return;
+
+  setProjectNotes((prev) =>
+    prev.map((note) =>
+      note.projectId === activeProjectId
+        ? { ...note, content: "" }
+        : note
+    )
+  );
+}
+
+function clearProjectTasks() {
+  if (!activeProjectId) return;
+
+  const confirmClear = window.confirm(
+    "Clear all tasks for this project?"
+  );
+
+  if (!confirmClear) return;
+
+  setProjectTasks((prev) =>
+    prev.filter((task) => task.projectId !== activeProjectId)
+  );
+}
   function exportProject() {
   if (!activeProject) return;
 
@@ -1400,6 +1449,28 @@ ${chat.messages
       Project Health: {projectHealth}%
     </div>
   </div>
+        <div className="flex flex-wrap gap-2 mt-4">
+  <button
+    onClick={clearProjectMemory}
+    className="bg-red-700 hover:bg-red-800 rounded-xl px-3 py-2 text-xs font-semibold"
+  >
+    Clear Memory
+  </button>
+
+  <button
+    onClick={clearProjectNotes}
+    className="bg-orange-700 hover:bg-orange-800 rounded-xl px-3 py-2 text-xs font-semibold"
+  >
+    Clear Notes
+  </button>
+
+  <button
+    onClick={clearProjectTasks}
+    className="bg-yellow-700 hover:bg-yellow-800 rounded-xl px-3 py-2 text-xs font-semibold"
+  >
+    Clear Tasks
+  </button>
+</div>
 </div>
 
            <div className="border-b border-gray-800 p-4">
