@@ -236,6 +236,17 @@ const nextFocus =
     : notesWordCount < 100
     ? "Expand project notes"
     : "Generate summary";
+
+  const latestFileType =
+  mostRecentFile?.type || "None";
+
+const latestFileUploadedAt =
+  mostRecentFile?.uploadedAt
+    ? new Date(mostRecentFile.uploadedAt).toLocaleString()
+    : "None";
+
+const latestFileHasAnalysis =
+  mostRecentFile?.analysis ? "Yes" : "No";
   
   useEffect(() => {
     const urlMode = searchParams.get("mode");
@@ -1262,7 +1273,43 @@ const newProject: Project = {
     </div>
   </div>
 </div>
-               
+
+           <div className="border-b border-gray-800 p-4">
+  <h3 className="font-semibold mb-3">
+    File Intelligence
+  </h3>
+
+  <div className="grid md:grid-cols-4 gap-4 text-sm">
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400">Latest File</div>
+      <div className="font-semibold truncate">
+        {mostRecentFile?.name || "None"}
+      </div>
+    </div>
+
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400">File Type</div>
+      <div className="font-semibold truncate">
+        {latestFileType}
+      </div>
+    </div>
+
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400">Uploaded</div>
+      <div className="font-semibold truncate">
+        {latestFileUploadedAt}
+      </div>
+    </div>
+
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400">Has Analysis</div>
+      <div className="font-semibold">
+        {latestFileHasAnalysis}
+      </div>
+    </div>
+  </div>
+</div>
+           
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold mb-2">
            Project Memory
