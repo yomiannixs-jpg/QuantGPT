@@ -208,6 +208,34 @@ const projectHealth =
         completedTasks * 10
     )
   );
+  const projectStage =
+  activeProjectFileCount === 0 && notesWordCount < 50
+    ? "Planning"
+    : activeProjectFileCount > 0 && completedTasks === 0
+    ? "Data Collection"
+    : totalTasks > 0 && researchProgress < 50
+    ? "Analysis"
+    : researchProgress >= 50 && notesWordCount > 100
+    ? "Writing"
+    : researchProgress === 100
+    ? "Final Review"
+    : "Active Research";
+
+const projectRisk =
+  openTasks >= 5 && researchProgress < 40
+    ? "High"
+    : openTasks >= 3 || projectHealth < 50
+    ? "Medium"
+    : "Low";
+
+const nextFocus =
+  openTasks > 0
+    ? "Complete open tasks"
+    : activeProjectFileCount === 0
+    ? "Upload source files"
+    : notesWordCount < 100
+    ? "Expand project notes"
+    : "Generate summary";
   
   useEffect(() => {
     const urlMode = searchParams.get("mode");
@@ -1164,10 +1192,30 @@ const newProject: Project = {
     {completedTasks}
   </div>
 </div>
-
+       <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+  <div className="text-gray-400 text-sm">Stage</div>
+  <div className="text-lg font-bold">
+    {projectStage}
+  </div>
 </div>
+
+<div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+  <div className="text-gray-400 text-sm">Risk</div>
+  <div className="text-lg font-bold">
+    {projectRisk}
+  </div>
+</div>
+
+<div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+  <div className="text-gray-400 text-sm">Next Focus</div>
+  <div className="text-sm font-bold">
+    {nextFocus}
+  </div>
+</div>
+      
+    </div>
 </div> 
-           
+               
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold mb-2">
            Project Memory
