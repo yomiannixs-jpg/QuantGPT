@@ -529,7 +529,22 @@ const newProject: Project = {
       return remaining;
     });
   }
+    function addProjectTask(taskText: string) {
+       const value = taskText.trim();
 
+       if (!value || !activeProjectId) return;
+
+       setProjectTasks((prev) => [
+       {
+          id: Date.now().toString(),
+          projectId: activeProjectId,
+          text: value,
+          completed: false,
+          createdAt: Date.now(),
+       },
+       ...prev,
+     ]);
+   }
   function exportChat() {
     if (!activeChat) return;
 
@@ -1131,31 +1146,22 @@ const newProject: Project = {
   />
 </div>
         <div className="border-b border-gray-800 p-4">
-  <h3 className="font-semibold mb-2">Project Tasks</h3>
+           <h3 className="font-semibold mb-2">Project Tasks</h3>
 
-  <div className="flex gap-2 mb-3">
-    <input
-      id="new-task-input"
-      type="text"
-      className="flex-1 bg-gray-900 border border-gray-700 rounded-xl p-3 text-white"
-      placeholder="Add a task..."
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
+       <div className="flex gap-2 mb-3">
+           <input
+             id="new-task-input"
+             type="text"
+             className="flex-1 bg-gray-900 border border-gray-700 rounded-xl p-3 text-white"
+             placeholder="Add a task..."
+             onKeyDown={(e) => {
+          if (e.key === "Enter") {
           const input = e.currentTarget;
           const value = input.value.trim();
 
           if (!value || !activeProjectId) return;
 
-          setProjectTasks((prev) => [
-            {
-              id: Date.now().toString(),
-              projectId: activeProjectId,
-              text: value,
-              completed: false,
-              createdAt: Date.now(),
-            },
-            ...prev,
-          ]);
+           addProjectTask(value);
 
           input.value = "";
         }
@@ -1172,16 +1178,7 @@ const newProject: Project = {
 
         if (!value || !activeProjectId) return;
 
-        setProjectTasks((prev) => [
-          {
-            id: Date.now().toString(),
-            projectId: activeProjectId,
-            text: value,
-            completed: false,
-            createdAt: Date.now(),
-          },
-          ...prev,
-        ]);
+         addProjectTask(value); 
 
         if (input) input.value = "";
       }}
@@ -1190,6 +1187,36 @@ const newProject: Project = {
       Add
     </button>
   </div>
+  <div className="flex gap-2 mb-3">
+  <input
+    id="suggested-task-input"
+    type="text"
+    className="flex-1 bg-gray-900 border border-gray-700 rounded-xl p-3 text-white"
+    placeholder="Paste AI suggested task here..."
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        const input = e.currentTarget;
+        addProjectTask(input.value);
+        input.value = "";
+      }
+    }}
+  />
+
+  <button
+    onClick={() => {
+      const input = document.getElementById(
+        "suggested-task-input"
+      ) as HTMLInputElement | null;
+
+      addProjectTask(input?.value || "");
+
+      if (input) input.value = "";
+    }}
+    className="bg-green-700 hover:bg-green-800 rounded-xl px-4 font-semibold"
+  >
+    Add Suggested Task
+  </button>
+</div>
 
   {activeProjectTasks.length === 0 ? (
     <p className="text-sm text-gray-500">No tasks yet.</p>
