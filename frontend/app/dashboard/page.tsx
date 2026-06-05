@@ -1215,12 +1215,12 @@ const newProject: Project = {
       
     </div>
 </div> 
-           <div className="border-b border-gray-800 p-4">
-  <h3 className="font-semibold mb-3">
-    Research Dashboard
+    <div className="border-b border-gray-800 p-4">
+       <h3 className="font-semibold mb-3">
+       Research Dashboard
   </h3>
 
-  <div className="space-y-2 text-sm">
+   <div className="space-y-2 text-sm">
     <div>
       Stage: <span className="font-semibold">{projectStage}</span>
     </div>
