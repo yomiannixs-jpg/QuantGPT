@@ -556,6 +556,24 @@ const newProject: Project = {
       return remaining;
     });
   }
+  function formatTimelineDate(timestamp: number) {
+  const date = new Date(timestamp);
+  const today = new Date();
+
+  const sameDay =
+    date.toDateString() === today.toDateString();
+
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const sameYesterday =
+    date.toDateString() === yesterday.toDateString();
+
+  if (sameDay) return "Today";
+  if (sameYesterday) return "Yesterday";
+
+  return date.toLocaleDateString();
+}
     function addProjectTask(taskText: string) {
        const value = taskText.trim();
 
@@ -571,7 +589,23 @@ const newProject: Project = {
        },
        ...prev,
      ]);
-   }
+        setProjectMemories((prev) =>
+         prev.map((memory) =>
+           memory.projectId === activeProjectId
+            ? {
+          ...memory,
+           items: [
+            ...memory.items,
+            {
+              text: `Added task: ${value}`,
+              createdAt: Date.now(),
+            },
+          ],
+        }
+      : memory
+     )
+   );
+}
   function exportChat() {
     if (!activeChat) return;
 
@@ -614,9 +648,7 @@ const newProject: Project = {
 
    Return only a concise numbered list of 5 next tasks.
   `;
-
    setMessage(taskPrompt);
-
    setTimeout(() => {
     sendMessage();
   }, 100);
@@ -650,7 +682,7 @@ const newProject: Project = {
   3. Outstanding tasks
   4. Recommended next steps
   `;
-
+    
   setMessage(summaryPrompt);
 
   setTimeout(() => {
@@ -1142,16 +1174,29 @@ const newProject: Project = {
         </h3>
     
      {activeProjectMemory?.items?.length ? (
-       <ul className="text-sm text-gray-300 space-y-1">
-     {activeProjectMemory.items.map((item, idx) => (
-       <li key={idx} className="flex flex-col">
-       <span>• {item.text}</span>
-       <span className="text-[10px] text-gray-500 ml-3">
-       {new Date(item.createdAt).toLocaleString()}
-      </span>
-     </li>
+      <div className="space-y-2">
+  {activeProjectMemory.items
+    .slice()
+    .reverse()
+    .map((item, idx) => (
+      <div
+        key={idx}
+        className="border-l-2 border-blue-600 pl-3 py-1"
+      >
+        <div className="text-xs text-gray-500">
+          {formatTimelineDate(item.createdAt)}
+        </div>
+
+        <div className="text-sm text-gray-200">
+          {item.text}
+        </div>
+
+        <div className="text-[10px] text-gray-500">
+          {new Date(item.createdAt).toLocaleString()}
+        </div>
+      </div>
     ))}
- </ul>
+</div>
 ) : (
              <p className="text-gray-500 text-sm">
                 No memory yet.
