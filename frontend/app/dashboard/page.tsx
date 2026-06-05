@@ -65,6 +65,13 @@ const projectColors: Record<string, string> = {
   projectId: string;
   content: string;
 };
+  type ProjectTask = {
+  id: string;
+  projectId: string;
+  text: string;
+  completed: boolean;
+  createdAt: number;
+};
 type ProjectFile = {
   id: string;
   projectId: string;
@@ -132,11 +139,12 @@ function DashboardContent() {
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [chart, setChart] = useState<string | null>(null);
-
+  const [projectTasks, setProjectTasks] = useState<ProjectTask[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectFiles, setProjectFiles] = useState<ProjectFile[]>([]);
   const [projectMemories, setProjectMemories] = useState<ProjectMemory[]>([]);
   const [projectNotes, setProjectNotes] = useState<ProjectNote[]>([]);
+  
   const [activeProjectId, setActiveProjectId] = useState("");
 
   const [chats, setChats] = useState<ChatSession[]>([]);
@@ -163,10 +171,8 @@ function DashboardContent() {
   projectMemories.find(
     (m) => m.projectId === activeProjectId
   );
-  const activeProjectNote =
-  projectNotes.find(
-    (n) => n.projectId === activeProjectId
-  );
+  const activeProjectNote = projectNotes.find( (n) => n.projectId === activeProjectId);
+  const activeProjectTasks = projectTasks.filter((task) => task.projectId === activeProjectId).sort((a, b) => b.createdAt - a.createdAt);
   const activeProjectChatCount = projectChats.length;
   const activeProjectFileCount = activeProjectFiles.length;
   const mostRecentFile =
@@ -186,6 +192,7 @@ function DashboardContent() {
     const savedProjectFiles = localStorage.getItem("quant-gpt-project-files");
     const savedProjectMemories = localStorage.getItem( "quant-gpt-project-memories");
     const savedProjectNotes = localStorage.getItem("quant-gpt-project-notes");
+    const savedProjectTasks = localStorage.getItem("quant-gpt-project-tasks");
     const savedActiveProjectId = localStorage.getItem("quant-gpt-active-project-id");
     const savedActiveChatId = localStorage.getItem("quant-ai-active-chat-id");
     
@@ -220,6 +227,7 @@ function DashboardContent() {
 
     setProjectMemories(upgradedMemories);
     setProjectNotes(savedProjectNotes ? JSON.parse(savedProjectNotes) : []);
+    setProjectTasks(savedProjectTasks ? JSON.parse(savedProjectTasks) : []);
 
     if (loadedProjects.length === 0) {
       loadedProjects = [createDefaultProject()];
@@ -314,7 +322,14 @@ function DashboardContent() {
     JSON.stringify(projectNotes)
    );
   }, [projectNotes]);
-    
+
+   useEffect(() => {
+  localStorage.setItem(
+    "quant-gpt-project-tasks",
+    JSON.stringify(projectTasks)
+  );
+}, [projectTasks]); 
+  
   useEffect(() => {
     if (activeChatId) {
       localStorage.setItem("quant-ai-active-chat-id", activeChatId);
@@ -346,20 +361,20 @@ function DashboardContent() {
      colors[Math.floor(Math.random() * colors.length)];
  
      const categoryInput = window.prompt(
-  "Choose project category: research, finance, cfa, ican, actuarial, phd, papers, datasets",
-  "research"
-  );
+     "Choose project category: research, finance, cfa, ican, actuarial, phd, papers, datasets",
+     "research"
+    );
 
- const allowedCategories = [
-  "research",
-  "finance",
-  "cfa",
-  "ican",
-  "actuarial",
-  "phd",
-  "papers",
-  "datasets",
-];
+    const allowedCategories = [
+    "research",
+    "finance",
+    "cfa",
+    "ican",
+    "actuarial",
+    "phd",
+    "papers",
+    "datasets",
+   ];
 
 const selectedCategory = allowedCategories.includes(
   (categoryInput || "").toLowerCase().trim()
@@ -1018,6 +1033,115 @@ const newProject: Project = {
     className="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white"
     placeholder="Write project notes here..."
   />
+</div>
+        <div className="border-b border-gray-800 p-4">
+  <h3 className="font-semibold mb-2">Project Tasks</h3>
+
+  <div className="flex gap-2 mb-3">
+    <input
+      id="new-task-input"
+      type="text"
+      className="flex-1 bg-gray-900 border border-gray-700 rounded-xl p-3 text-white"
+      placeholder="Add a task..."
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          const input = e.currentTarget;
+          const value = input.value.trim();
+
+          if (!value || !activeProjectId) return;
+
+          setProjectTasks((prev) => [
+            {
+              id: Date.now().toString(),
+              projectId: activeProjectId,
+              text: value,
+              completed: false,
+              createdAt: Date.now(),
+            },
+            ...prev,
+          ]);
+
+          input.value = "";
+        }
+      }}
+    />
+
+    <button
+      onClick={() => {
+        const input = document.getElementById(
+          "new-task-input"
+        ) as HTMLInputElement | null;
+
+        const value = input?.value.trim();
+
+        if (!value || !activeProjectId) return;
+
+        setProjectTasks((prev) => [
+          {
+            id: Date.now().toString(),
+            projectId: activeProjectId,
+            text: value,
+            completed: false,
+            createdAt: Date.now(),
+          },
+          ...prev,
+        ]);
+
+        if (input) input.value = "";
+      }}
+      className="bg-blue-600 hover:bg-blue-700 rounded-xl px-4 font-semibold"
+    >
+      Add
+    </button>
+  </div>
+
+  {activeProjectTasks.length === 0 ? (
+    <p className="text-sm text-gray-500">No tasks yet.</p>
+  ) : (
+    <div className="space-y-2">
+      {activeProjectTasks.map((task) => (
+        <div
+          key={task.id}
+          className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-xl p-3"
+        >
+          <input
+            type="checkbox"
+            checked={task.completed}
+            onChange={() =>
+              setProjectTasks((prev) =>
+                prev.map((item) =>
+                  item.id === task.id
+                    ? { ...item, completed: !item.completed }
+                    : item
+                )
+              )
+            }
+          />
+
+          <span
+            className={`flex-1 text-sm ${
+              task.completed
+                ? "line-through text-gray-500"
+                : "text-gray-200"
+            }`}
+          >
+            {task.text}
+          </span>
+
+          <button
+            onClick={() =>
+              setProjectTasks((prev) =>
+                prev.filter((item) => item.id !== task.id)
+              )
+            }
+            className="text-gray-500 hover:text-red-400"
+          >
+            ×
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
 </div>
            
         <div className="flex-1 p-4 lg:p-6 overflow-y-auto space-y-4">
