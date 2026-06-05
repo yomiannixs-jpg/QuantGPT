@@ -1215,17 +1215,53 @@ const newProject: Project = {
       
     </div>
 </div> 
-    <div className="border-b border-gray-800 p-4">
+      <div className="border-b border-gray-800 p-4">
        <h3 className="font-semibold mb-3">
-       Research Dashboard
-  </h3>
+      Research Dashboard
+     </h3>
 
-   <div className="space-y-2 text-sm">
+  <div className="space-y-2 text-sm">
     <div>
       Stage: <span className="font-semibold">{projectStage}</span>
     </div>
 
-    <
+    <div>
+      Risk Level: <span className="font-semibold">{projectRisk}</span>
+    </div>
+
+    <div>
+      Tasks Completion:{" "}
+      <span className="font-semibold">
+        {completedTasks}/{totalTasks}
+      </span>
+    </div>
+
+    <div>
+      Files Uploaded:{" "}
+      <span className="font-semibold">
+        {activeProjectFileCount}
+      </span>
+    </div>
+
+    <div>
+      Memory Entries:{" "}
+      <span className="font-semibold">
+        {memoryEntries}
+      </span>
+    </div>
+
+    <div className="w-full bg-gray-800 rounded-full h-3 mt-3">
+      <div
+        className="bg-blue-600 h-3 rounded-full"
+        style={{ width: `${projectHealth}%` }}
+      />
+    </div>
+
+    <div className="text-xs text-gray-400">
+      Project Health: {projectHealth}%
+    </div>
+  </div>
+</div>
                
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold mb-2">
