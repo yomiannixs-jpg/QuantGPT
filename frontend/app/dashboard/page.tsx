@@ -175,15 +175,12 @@ function DashboardContent() {
   const activeProjectTasks = projectTasks.filter((task) => task.projectId === activeProjectId).sort((a, b) => b.createdAt - a.createdAt);
   const activeProjectChatCount = projectChats.length;
   const activeProjectFileCount = activeProjectFiles.length;
-  const mostRecentFile =
-  activeProjectFiles.length > 0
-    ? activeProjectFiles[0]
-    : null;
+  const mostRecentFile = activeProjectFiles.length > 0 ? activeProjectFiles[0] : null;
 
-  const mostRecentChat =
-  projectChats.length > 0
-    ? projectChats[0]
-    : null;
+  const mostRecentChat = projectChats.length > 0 ? projectChats[0] : null;
+  const completedTasks = activeProjectTasks.filter( (t) => t.completed ).length;
+  const openTasks = activeProjectTasks.filter( (t) => !t.completed ).length;
+  const latestMemory = activeProjectMemory?.items?.length ? activeProjectMemory.items[ activeProjectMemory.items.length - 1 ] : null;
 
   useEffect(() => {
     const urlMode = searchParams.get("mode");
@@ -944,7 +941,7 @@ const newProject: Project = {
          Mode: {mode}
        </p>
     
-    <div className="grid md:grid-cols-4 gap-4">
+    <div className="grid md:grid-cols-6 gap-4">
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
         <div className="text-gray-400 text-sm">Chats</div>
         <div className="text-3xl font-bold">
@@ -974,6 +971,26 @@ const newProject: Project = {
       </div>
     </div>
   </div>
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+            <div className="text-gray-400 text-sm">
+             Open Tasks
+          </div>
+
+          <div className="text-3xl font-bold">
+             {openTasks}
+         </div>
+    </div>
+
+          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+          <div className="text-gray-400 text-sm">
+             Completed
+          </div>
+
+          <div className="text-3xl font-bold">
+             {completedTasks}
+         </div>
+         </div> 
+           
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold mb-2">
            Project Memory
