@@ -857,10 +857,7 @@ ${chat.messages
 
    Return only a concise numbered list of 5 next tasks.
   `;
-   setMessage(taskPrompt);
-   setTimeout(() => {
-    sendMessage();
-  }, 100);
+   sendPresetMessage(taskPrompt);
 }
   async function generateProjectSummary() {
   if (!activeProject || !activeChat) return;
@@ -890,13 +887,8 @@ ${chat.messages
   2. Completed work
   3. Outstanding tasks
   4. Recommended next steps
-  `;
-    
-  setMessage(summaryPrompt);
-
-  setTimeout(() => {
-    sendMessage();
-  }, 100);
+  `;   
+  sendPresetMessage(summaryPrompt);
 }
   function sendPresetMessage(presetText: string) {
   if (!presetText.trim()) return;
