@@ -53,9 +53,13 @@ const projectColors: Record<string, string> = {
   papers: "📄 Papers",
   datasets: "📂 Datasets",
 };
-type ProjectMemory = {
+  type ProjectMemoryItem = {
+  text: string;
+  createdAt: number;
+};
+  type ProjectMemory = {
   projectId: string;
-  items: string[];
+  items: ProjectMemoryItem[];
 };
 type ProjectFile = {
   id: string;
@@ -190,7 +194,23 @@ function DashboardContent() {
   : [];
 
     setProjectFiles(loadedProjectFiles);
-    setProjectMemories(savedProjectMemories ? JSON.parse(savedProjectMemories) : []);
+    const parsedMemories = savedProjectMemories
+  ? JSON.parse(savedProjectMemories)
+  : [];
+
+    const upgradedMemories: ProjectMemory[] = parsedMemories.map((memory: any) => ({
+    projectId: memory.projectId,
+    items: (memory.items || []).map((item: any) =>
+    typeof item === "string"
+      ? {
+          text: item,
+          createdAt: Date.now(),
+        }
+      : item
+    ),
+   }));
+
+    setProjectMemories(upgradedMemories);
 
     if (loadedProjects.length === 0) {
       loadedProjects = [createDefaultProject()];
@@ -347,10 +367,15 @@ const newProject: Project = {
   {
     projectId: newProject.id,
     items: [
-      "Project created",
-      "Ready for research",
-    ],
+  {
+    text: "Project created",
+    createdAt: Date.now(),
   },
+  {
+    text: "Ready for research",
+    createdAt: Date.now(),
+  },
+],
 ]);  
   setChats((prev) => [newChat, ...prev]);
 
@@ -622,8 +647,11 @@ const newProject: Project = {
               ...m,
               items: [
               ...m.items,
-              `Uploaded ${selectedFile.name}`,
-               ],
+               {
+              text: `Uploaded ${selectedFile.name}`,
+              createdAt: Date.now(),
+               },
+             ],
              }
           : m
         );
@@ -634,8 +662,11 @@ const newProject: Project = {
          {
           projectId: activeProjectId!,
           items: [
-         `Uploaded ${selectedFile.name}`,
-              ],
+         {
+          text: `Uploaded ${selectedFile.name}`,
+          createdAt: Date.now(),
+          },
+         ],
             },
           ];
       });
@@ -917,11 +948,14 @@ const newProject: Project = {
 
      {activeProjectMemory?.items?.length ? (
        <ul className="text-sm text-gray-300 space-y-1">
-          {activeProjectMemory.items.map((item, idx) => (
-             <li key={idx}>
-                • {item}
-              </li>
-              ))}
+     {activeProjectMemory.items.map((item, idx) => (
+       <li key={idx} className="flex flex-col">
+       <span>• {item.text}</span>
+       <span className="text-[10px] text-gray-500 ml-3">
+       {new Date(item.createdAt).toLocaleString()}
+      </span>
+     </li>
+    ))}
             </ul>
            ) : (
              <p className="text-gray-500 text-sm">
