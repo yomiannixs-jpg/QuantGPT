@@ -53,6 +53,10 @@ const projectColors: Record<string, string> = {
   papers: "📄 Papers",
   datasets: "📂 Datasets",
 };
+type ProjectMemory = {
+  projectId: string;
+  items: string[];
+};
 type ProjectFile = {
   id: string;
   projectId: string;
@@ -123,6 +127,8 @@ function DashboardContent() {
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectFiles, setProjectFiles] = useState<ProjectFile[]>([]);
+  const [projectMemories, setProjectMemories] =
+  useState<ProjectMemory[]>([]);
   const [activeProjectId, setActiveProjectId] = useState("");
 
   const [chats, setChats] = useState<ChatSession[]>([]);
@@ -145,10 +151,13 @@ function DashboardContent() {
   .filter((file) => file.projectId === activeProjectId)
   .sort((a, b) => b.uploadedAt - a.uploadedAt);
 
+  const activeProjectMemory =
+  projectMemories.find(
+    (m) => m.projectId === activeProjectId
+  );
+
   const activeProjectChatCount = projectChats.length;
-
   const activeProjectFileCount = activeProjectFiles.length;
-
   const mostRecentFile =
   activeProjectFiles.length > 0
     ? activeProjectFiles[0]
@@ -161,13 +170,13 @@ function DashboardContent() {
 
   useEffect(() => {
     const urlMode = searchParams.get("mode");
-
     const savedProjects = localStorage.getItem("quant-gpt-projects");
     const savedChats = localStorage.getItem("quant-ai-chats");
     const savedProjectFiles = localStorage.getItem("quant-gpt-project-files");
+    const savedProjectMemories = localStorage.getItem( "quant-gpt-project-memories");
     const savedActiveProjectId = localStorage.getItem("quant-gpt-active-project-id");
     const savedActiveChatId = localStorage.getItem("quant-ai-active-chat-id");
-
+    
     let loadedProjects: Project[] = savedProjects
   ? JSON.parse(savedProjects).map((p: any) => ({
       ...p,
@@ -180,12 +189,12 @@ function DashboardContent() {
   ? JSON.parse(savedProjectFiles)
   : [];
 
-setProjectFiles(loadedProjectFiles);
+    setProjectFiles(loadedProjectFiles);
+    setProjectMemories(savedProjectMemories ? JSON.parse(savedProjectMemories) : []);
 
     if (loadedProjects.length === 0) {
       loadedProjects = [createDefaultProject()];
     }
-
     const defaultProjectId = loadedProjects[0].id;
 
     loadedChats = loadedChats.map((chat) => ({
@@ -256,12 +265,19 @@ setProjectFiles(loadedProjectFiles);
     }
   }, [chats]);
 
-  useEffect(() => {
-  localStorage.setItem(
+   useEffect(() => {
+   localStorage.setItem(
     "quant-gpt-project-files",
     JSON.stringify(projectFiles)
   );
 }, [projectFiles]);
+
+   useEffect(() => {
+   localStorage.setItem(
+    "quant-gpt-project-memories",
+    JSON.stringify(projectMemories)
+   );
+  }, [projectMemories]);
 
   useEffect(() => {
     if (activeChatId) {
@@ -296,9 +312,9 @@ setProjectFiles(loadedProjectFiles);
      const categoryInput = window.prompt(
   "Choose project category: research, finance, cfa, ican, actuarial, phd, papers, datasets",
   "research"
-);
+  );
 
-const allowedCategories = [
+ const allowedCategories = [
   "research",
   "finance",
   "cfa",
@@ -326,6 +342,16 @@ const newProject: Project = {
   const newChat = createNewChat(newProject.id);
 
   setProjects((prev) => [newProject, ...prev]);
+  setProjectMemories((prev) => [
+  ...prev,
+  {
+    projectId: newProject.id,
+    items: [
+      "Project created",
+      "Ready for research",
+    ],
+  },
+]);  
   setChats((prev) => [newChat, ...prev]);
 
   setActiveProjectId(newProject.id);
@@ -853,6 +879,25 @@ const newProject: Project = {
       </div>
     </div>
   </div>
+      <div className="border-b border-gray-800 p-4">
+        <h3 className="font-semibold mb-2">
+           Project Memory
+        </h3>
+
+     {activeProjectMemory?.items?.length ? (
+       <ul className="text-sm text-gray-300 space-y-1">
+          {activeProjectMemory.items.map((item, idx) => (
+             <li key={idx}>
+                • {item}
+              </li>
+              ))}
+            </ul>
+           ) : (
+             <p className="text-gray-500 text-sm">
+                No memory yet.
+             </p>
+           )}
+         </div>
 
         <div className="flex-1 p-4 lg:p-6 overflow-y-auto space-y-4">
           {messages.map((msg, index) => (
