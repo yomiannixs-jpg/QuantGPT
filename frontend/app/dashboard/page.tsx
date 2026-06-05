@@ -609,6 +609,37 @@ const newProject: Project = {
 
       setProjectFiles((prev) => [fileRecord, ...prev]);
 
+      setProjectMemories((prev) => {
+       const existing =
+        prev.find(
+          (m) => m.projectId === activeProjectId
+      );
+
+      if (existing) {
+          return prev.map((m) =>
+            m.projectId === activeProjectId
+             ? {
+              ...m,
+              items: [
+              ...m.items,
+              `Uploaded ${selectedFile.name}`,
+               ],
+             }
+          : m
+        );
+      }
+
+     return [
+       ...prev,
+         {
+          projectId: activeProjectId!,
+          items: [
+         `Uploaded ${selectedFile.name}`,
+              ],
+            },
+          ];
+      });
+
       setChart(data.chart || null);
 
       updateActiveChat((chat) => {
