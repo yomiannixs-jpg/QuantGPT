@@ -547,35 +547,67 @@ const newProject: Project = {
 
     URL.revokeObjectURL(url);
   }
+  async function suggestNextTasks() {
+  if (!activeProject || !activeChat) return;
+
+  const taskPrompt = `
+  Based on this project context, suggest 5 concrete next tasks.
+
+  Project: ${activeProject.name}
+  Category: ${projectCategories[activeProject.category || "research"]}
+
+  Files:
+  ${activeProjectFiles.map((f) => `- ${f.name}`).join("\n") || "No files uploaded"}
+
+  Memory:
+  ${activeProjectMemory?.items?.map((m) => `- ${m.text}`).join("\n") || "No memory yet"}
+
+  Notes:
+  ${activeProjectNote?.content || "No notes yet"}
+
+  Current Tasks:
+  ${activeProjectTasks
+  .map((t) => `- [${t.completed ? "x" : " "}] ${t.text}`)
+  .join("\n") || "No tasks yet"}
+
+   Return only a concise numbered list of 5 next tasks.
+  `;
+
+   setMessage(taskPrompt);
+
+   setTimeout(() => {
+    sendMessage();
+  }, 100);
+}
   async function generateProjectSummary() {
   if (!activeProject || !activeChat) return;
 
   const summaryPrompt = `
-Generate a clear project status summary for this project.
+  Generate a clear project status summary for this project.
 
-Project: ${activeProject.name}
-Category: ${projectCategories[activeProject.category || "research"]}
+  Project: ${activeProject.name}
+  Category: ${projectCategories[activeProject.category || "research"]}
 
-Files:
-${activeProjectFiles.map((f) => `- ${f.name}`).join("\n") || "No files uploaded"}
+  Files:
+  ${activeProjectFiles.map((f) => `- ${f.name}`).join("\n") || "No files uploaded"}
 
-Memory:
-${activeProjectMemory?.items?.map((m) => `- ${m.text}`).join("\n") || "No memory yet"}
+  Memory:
+  ${activeProjectMemory?.items?.map((m) => `- ${m.text}`).join("\n") || "No memory yet"}
 
-Notes:
-${activeProjectNote?.content || "No notes yet"}
+  Notes:
+  ${activeProjectNote?.content || "No notes yet"}
 
-Tasks:
-${activeProjectTasks
+  Tasks:
+  ${activeProjectTasks
   .map((t) => `- [${t.completed ? "x" : " "}] ${t.text}`)
   .join("\n") || "No tasks yet"}
 
-Please summarize:
-1. Current project status
-2. Completed work
-3. Outstanding tasks
-4. Recommended next steps
-`;
+  Please summarize:
+  1. Current project status
+  2. Completed work
+  3. Outstanding tasks
+  4. Recommended next steps
+  `;
 
   setMessage(summaryPrompt);
 
@@ -973,12 +1005,21 @@ Please summarize:
       </h2>
 
       <p className="text-gray-400 text-xs lg:text-sm mb-4"> Mode: {mode} </p>
-      <button
-  onClick={generateProjectSummary}
-  className="mb-4 bg-purple-700 hover:bg-purple-800 rounded-xl px-4 py-2 text-sm font-semibold"
->
-  Generate Project Summary
-</button>
+      <div className="flex flex-wrap gap-2 mb-4">
+  <button
+    onClick={generateProjectSummary}
+    className="bg-purple-700 hover:bg-purple-800 rounded-xl px-4 py-2 text-sm font-semibold"
+  >
+    Generate Project Summary
+  </button>
+
+  <button
+    onClick={suggestNextTasks}
+    className="bg-green-700 hover:bg-green-800 rounded-xl px-4 py-2 text-sm font-semibold"
+  >
+    Suggest Next Tasks
+  </button>
+</div>
     <div className="grid md:grid-cols-6 gap-4">
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
         <div className="text-gray-400 text-sm">Chats</div>
