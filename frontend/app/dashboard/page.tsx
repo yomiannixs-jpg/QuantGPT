@@ -61,6 +61,10 @@ const projectColors: Record<string, string> = {
   projectId: string;
   items: ProjectMemoryItem[];
 };
+  type ProjectNote = {
+  projectId: string;
+  content: string;
+};
 type ProjectFile = {
   id: string;
   projectId: string;
@@ -131,8 +135,8 @@ function DashboardContent() {
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectFiles, setProjectFiles] = useState<ProjectFile[]>([]);
-  const [projectMemories, setProjectMemories] =
-  useState<ProjectMemory[]>([]);
+  const [projectMemories, setProjectMemories] = useState<ProjectMemory[]>([]);
+  const [projectNotes, setProjectNotes] = useState<ProjectNote[]>([]);
   const [activeProjectId, setActiveProjectId] = useState("");
 
   const [chats, setChats] = useState<ChatSession[]>([]);
@@ -159,7 +163,10 @@ function DashboardContent() {
   projectMemories.find(
     (m) => m.projectId === activeProjectId
   );
-
+  const activeProjectNote =
+  projectNotes.find(
+    (n) => n.projectId === activeProjectId
+  );
   const activeProjectChatCount = projectChats.length;
   const activeProjectFileCount = activeProjectFiles.length;
   const mostRecentFile =
@@ -178,6 +185,7 @@ function DashboardContent() {
     const savedChats = localStorage.getItem("quant-ai-chats");
     const savedProjectFiles = localStorage.getItem("quant-gpt-project-files");
     const savedProjectMemories = localStorage.getItem( "quant-gpt-project-memories");
+    const savedProjectNotes = localStorage.getItem("quant-gpt-project-notes");
     const savedActiveProjectId = localStorage.getItem("quant-gpt-active-project-id");
     const savedActiveChatId = localStorage.getItem("quant-ai-active-chat-id");
     
@@ -211,6 +219,7 @@ function DashboardContent() {
    }));
 
     setProjectMemories(upgradedMemories);
+    setProjectNotes(savedProjectNotes ? JSON.parse(savedProjectNotes) : []);
 
     if (loadedProjects.length === 0) {
       loadedProjects = [createDefaultProject()];
@@ -299,6 +308,13 @@ function DashboardContent() {
    );
   }, [projectMemories]);
 
+   useEffect(() => {
+   localStorage.setItem(
+    "quant-gpt-project-notes",
+    JSON.stringify(projectNotes)
+   );
+  }, [projectNotes]);
+    
   useEffect(() => {
     if (activeChatId) {
       localStorage.setItem("quant-ai-active-chat-id", activeChatId);
@@ -966,6 +982,44 @@ const newProject: Project = {
            )}
          </div>
 
+            <div className="border-b border-gray-800 p-4">
+               <h3 className="font-semibold mb-2">
+                  Project Notes
+            </h3>
+
+           <textarea
+           value={activeProjectNote?.content || ""}
+           onChange={(e) => {
+           const value = e.target.value;
+
+           setProjectNotes((prev) => {
+           const existing = prev.find(
+          (n) => n.projectId === activeProjectId
+          );
+
+        if (existing) {
+          return prev.map((n) =>
+            n.projectId === activeProjectId
+              ? { ...n, content: value }
+              : n
+          );
+        }
+
+        return [
+          ...prev,
+          {
+            projectId: activeProjectId,
+            content: value,
+          },
+        ];
+      });
+    }}
+    rows={5}
+    className="w-full bg-gray-900 border border-gray-700 rounded-xl p-3 text-white"
+    placeholder="Write project notes here..."
+  />
+</div>
+           
         <div className="flex-1 p-4 lg:p-6 overflow-y-auto space-y-4">
           {messages.map((msg, index) => (
             <div
