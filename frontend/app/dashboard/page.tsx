@@ -547,7 +547,42 @@ const newProject: Project = {
 
     URL.revokeObjectURL(url);
   }
+  async function generateProjectSummary() {
+  if (!activeProject || !activeChat) return;
 
+  const summaryPrompt = `
+Generate a clear project status summary for this project.
+
+Project: ${activeProject.name}
+Category: ${projectCategories[activeProject.category || "research"]}
+
+Files:
+${activeProjectFiles.map((f) => `- ${f.name}`).join("\n") || "No files uploaded"}
+
+Memory:
+${activeProjectMemory?.items?.map((m) => `- ${m.text}`).join("\n") || "No memory yet"}
+
+Notes:
+${activeProjectNote?.content || "No notes yet"}
+
+Tasks:
+${activeProjectTasks
+  .map((t) => `- [${t.completed ? "x" : " "}] ${t.text}`)
+  .join("\n") || "No tasks yet"}
+
+Please summarize:
+1. Current project status
+2. Completed work
+3. Outstanding tasks
+4. Recommended next steps
+`;
+
+  setMessage(summaryPrompt);
+
+  setTimeout(() => {
+    sendMessage();
+  }, 100);
+}
   async function sendMessage() {
     if (!message.trim() || !activeChat) return;
 
@@ -937,10 +972,13 @@ const newProject: Project = {
         {activeProject?.name || "Quant GPT"} / {activeChat?.title || mode}
       </h2>
 
-      <p className="text-gray-400 text-xs lg:text-sm mb-4">
-         Mode: {mode}
-       </p>
-    
+      <p className="text-gray-400 text-xs lg:text-sm mb-4"> Mode: {mode} </p>
+      <button
+  onClick={generateProjectSummary}
+  className="mb-4 bg-purple-700 hover:bg-purple-800 rounded-xl px-4 py-2 text-sm font-semibold"
+>
+  Generate Project Summary
+</button>
     <div className="grid md:grid-cols-6 gap-4">
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
         <div className="text-gray-400 text-sm">Chats</div>
