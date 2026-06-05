@@ -198,15 +198,15 @@ function DashboardContent() {
   ? JSON.parse(savedProjectMemories)
   : [];
 
-    const upgradedMemories: ProjectMemory[] = parsedMemories.map((memory: any) => ({
-    projectId: memory.projectId,
-    items: (memory.items || []).map((item: any) =>
-    typeof item === "string"
-      ? {
-          text: item,
-          createdAt: Date.now(),
-        }
-      : item
+    const upgradedMemories = parsedMemories.map((memory: any) => ({
+      projectId: memory.projectId,
+      items: (memory.items || []).map((item: any) =>
+        typeof item === "string"
+         ? {
+             text: item,
+             createdAt: Date.now(),
+           }
+         : item
     ),
    }));
 
@@ -745,7 +745,7 @@ const newProject: Project = {
           >
             <button
               onClick={() => selectProject(project)}
-              className="flex-1 text-left truncate text-sm"
+              className="flex-1 text-left text-sm"
             >
              <>
               <span className="block truncate">
@@ -958,8 +958,8 @@ const newProject: Project = {
       </span>
      </li>
     ))}
-            </ul>
-           ) : (
+ </ul>
+) : (
              <p className="text-gray-500 text-sm">
                 No memory yet.
              </p>
