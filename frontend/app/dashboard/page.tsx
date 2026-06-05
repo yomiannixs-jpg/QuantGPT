@@ -898,6 +898,15 @@ ${chat.messages
     sendMessage();
   }, 100);
 }
+  function sendPresetMessage(presetText: string) {
+  if (!presetText.trim()) return;
+
+  setMessage(presetText);
+
+  setTimeout(() => {
+    sendMessage();
+  }, 100);
+}
   async function sendMessage() {
     if (!message.trim() || !activeChat) return;
 
@@ -1520,7 +1529,7 @@ ${chat.messages
   <button
     onClick={() => {
       if (!mostRecentFile) return;
-      setMessage(`Ask a question about this file: ${mostRecentFile.name}`);
+      sendPresetMessage(`Ask a question about this file: ${mostRecentFile.name}`);
       addProjectMemory(`Asked about ${mostRecentFile.name}`);
     }}
     disabled={!mostRecentFile}
@@ -1532,7 +1541,7 @@ ${chat.messages
   <button
     onClick={() => {
       if (!mostRecentFile) return;
-      setMessage(`Summarize the uploaded file: ${mostRecentFile.name}`);
+      sendPresetMessage(`Summarize the uploaded file: ${mostRecentFile.name}`);
       addProjectMemory(`Requested summary for ${mostRecentFile.name}`);
     }}
     disabled={!mostRecentFile}
