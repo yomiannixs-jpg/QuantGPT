@@ -691,6 +691,81 @@ const newProject: Project = {
   setMode("File Analysis");
   addProjectMemory(`Opened analysis for ${mostRecentFile.name}`);
 }
+  function exportProject() {
+  if (!activeProject) return;
+
+  const projectText = `
+# ${activeProject.name}
+
+## Project Details
+- Category: ${projectCategories[activeProject.category || "research"]}
+- Stage: ${projectStage}
+- Risk: ${projectRisk}
+- Health: ${projectHealth}%
+- Progress: ${researchProgress}%
+
+## Files
+${
+  activeProjectFiles.length
+    ? activeProjectFiles.map((f) => `- ${f.name}`).join("\n")
+    : "No files uploaded."
+}
+
+## Tasks
+${
+  activeProjectTasks.length
+    ? activeProjectTasks
+        .map((t) => `- [${t.completed ? "x" : " "}] ${t.text}`)
+        .join("\n")
+    : "No tasks."
+}
+
+## Notes
+${activeProjectNote?.content || "No notes."}
+
+## Timeline
+${
+  activeProjectMemory?.items?.length
+    ? activeProjectMemory.items
+        .map(
+          (m) =>
+            `- ${new Date(m.createdAt).toLocaleString()}: ${m.text}`
+        )
+        .join("\n")
+    : "No timeline entries."
+}
+
+## Chats
+${
+  projectChats.length
+    ? projectChats
+        .map(
+          (chat) => `
+### ${chat.title}
+
+${chat.messages
+  .map((m) => `**${m.role === "user" ? "You" : "Quant GPT"}:** ${m.text}`)
+  .join("\n\n")}
+`
+        )
+        .join("\n\n---\n\n")
+    : "No chats."
+}
+`;
+
+  const blob = new Blob([projectText], {
+    type: "text/markdown",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = `${activeProject.name.replace(/[^a-z0-9]/gi, "_")}_project.md`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
   function exportChat() {
     if (!activeChat) return;
 
@@ -983,7 +1058,14 @@ const newProject: Project = {
         ⬇ Export Chat
       </button>
     </div>
-
+    
+    <button
+  onClick={exportProject}
+  className="w-full bg-green-700 hover:bg-green-800 rounded-xl p-3 font-semibold"
+>
+  ⬇ Export Project
+</button>
+    
     <div className="border-t border-gray-800 pt-4">
       <p className="text-gray-400 text-sm mb-3">Projects</p>
 
