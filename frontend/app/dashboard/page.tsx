@@ -645,6 +645,31 @@ const newProject: Project = {
      )
    );
 }
+  function openLatestFileAnalysis() {
+  if (!mostRecentFile?.analysis || !activeProjectId) return;
+
+  const fileChat: ChatSession = {
+    id: Date.now().toString(),
+    projectId: activeProjectId,
+    title: `File: ${mostRecentFile.name}`,
+    mode: "File Analysis",
+    messages: [
+      {
+        role: "user",
+        text: `Open previous file analysis: ${mostRecentFile.name}`,
+      },
+      {
+        role: "assistant",
+        text: mostRecentFile.analysis,
+      },
+    ],
+    updatedAt: Date.now(),
+  };
+
+  setChats((prev) => [fileChat, ...prev]);
+  setActiveChatId(fileChat.id);
+  setMode("File Analysis");
+}
   function exportChat() {
     if (!activeChat) return;
 
@@ -1306,8 +1331,40 @@ const newProject: Project = {
       <div className="font-semibold">
         {latestFileHasAnalysis}
       </div>
-    </div>
+   </div>
+  
   </div>
+             <div className="flex flex-wrap gap-2 mt-4">
+  <button
+    onClick={openLatestFileAnalysis}
+    disabled={!mostRecentFile?.analysis}
+    className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 rounded-xl px-4 py-2 text-sm font-semibold"
+  >
+    Open Analysis
+  </button>
+
+  <button
+    onClick={() => {
+      if (!mostRecentFile) return;
+      setMessage(`Ask a question about this file: ${mostRecentFile.name}`);
+    }}
+    disabled={!mostRecentFile}
+    className="bg-purple-700 hover:bg-purple-800 disabled:bg-gray-700 rounded-xl px-4 py-2 text-sm font-semibold"
+  >
+    Ask About File
+  </button>
+
+  <button
+    onClick={() => {
+      if (!mostRecentFile) return;
+      setMessage(`Summarize the uploaded file: ${mostRecentFile.name}`);
+    }}
+    disabled={!mostRecentFile}
+    className="bg-green-700 hover:bg-green-800 disabled:bg-gray-700 rounded-xl px-4 py-2 text-sm font-semibold"
+  >
+    Summarize File
+  </button>
+</div>
 </div>
            
       <div className="border-b border-gray-800 p-4">
