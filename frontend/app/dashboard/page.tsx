@@ -367,16 +367,18 @@ const newProject: Project = {
   {
     projectId: newProject.id,
     items: [
-  {
-    text: "Project created",
-    createdAt: Date.now(),
+      {
+        text: "Project created",
+        createdAt: Date.now(),
+      },
+      {
+        text: "Ready for research",
+        createdAt: Date.now(),
+      },
+    ],
   },
-  {
-    text: "Ready for research",
-    createdAt: Date.now(),
-  },
-],
-]);  
+]);
+  
   setChats((prev) => [newChat, ...prev]);
 
   setActiveProjectId(newProject.id);
