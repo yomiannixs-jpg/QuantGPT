@@ -1134,12 +1134,13 @@ const newProject: Project = {
 </div>
 
 </div>
-    
+</div> 
+           
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold mb-2">
            Project Memory
         </h3>
-
+    
      {activeProjectMemory?.items?.length ? (
        <ul className="text-sm text-gray-300 space-y-1">
      {activeProjectMemory.items.map((item, idx) => (
@@ -1158,7 +1159,7 @@ const newProject: Project = {
            )}
          </div>
 
-            <div className="border-b border-gray-800 p-4">
+        <div className="border-b border-gray-800 p-4">
                <h3 className="font-semibold mb-2">
                   Project Notes
             </h3>
