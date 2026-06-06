@@ -1465,6 +1465,29 @@ Write in a professional academic style.
  );
   sendPresetMessage(sectionPrompt);
 }
+  function generateMissingAssets() {
+  if (!hasResearchReport) {
+    generateResearchReport();
+    return;
+  }
+
+  if (!generatedAssets.find((asset) => asset.label === "Research Proposal")?.done) {
+    generateResearchProposal();
+    return;
+  }
+
+  if (!generatedAssets.find((asset) => asset.label === "Paper Outline")?.done) {
+    generatePaperOutline();
+    return;
+  }
+
+  if (!generatedAssets.find((asset) => asset.label === "Starter Paper Sections")?.done) {
+    generatePaperSections();
+    return;
+  }
+
+  alert("All generated research assets are complete.");
+}
   function sendPresetMessage(presetText: string) {
   if (!presetText.trim()) return;
 
@@ -2382,6 +2405,15 @@ Write in a professional academic style.
       </div>
     ))}
   </div>
+             
+   <div className="flex flex-wrap gap-2 mt-4">
+  <button
+    onClick={generateMissingAssets}
+    className="bg-lime-700 hover:bg-lime-800 rounded-xl px-3 py-2 text-xs font-semibold"
+  >
+    Generate Missing Assets
+  </button>
+</div>
 </div>
            
       <div className="border-b border-gray-800 p-4">
