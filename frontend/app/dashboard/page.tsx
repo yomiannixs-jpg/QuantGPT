@@ -1255,6 +1255,53 @@ Please produce a practical revision plan with:
 
   sendPresetMessage(revisionPrompt);
 }
+  <button
+  onClick={generateMethodologyAdvisor}
+  className="bg-cyan-700 hover:bg-cyan-800 rounded-xl px-4 py-2 text-sm font-semibold"
+>
+  Methodology Advisor
+</button>
+  async function generateMethodologyAdvisor() {
+  if (!activeProject) return;
+
+  const methodologyPrompt = `
+Act as a senior methodology advisor for an academic research project.
+
+Project: ${activeProject.name}
+Category: ${projectCategories[activeProject.category || "research"]}
+Stage: ${projectStage}
+Publication Readiness: ${publicationReadiness}%
+Project Status: ${projectCompletionStatus}
+Risk Level: ${projectRisk}
+
+Files Uploaded:
+${activeProjectFiles.map((f) => `- ${f.name}`).join("\n") || "No files uploaded"}
+
+Tasks:
+${activeProjectTasks
+  .map((t) => `- [${t.completed ? "x" : " "}] ${t.text}`)
+  .join("\n") || "No tasks"}
+
+Project Notes:
+${activeProjectNote?.content || "No notes"}
+
+Missing Actions:
+${missingActions.join("\n") || "None"}
+
+Please provide:
+1. Recommended research methodology
+2. Empirical or theoretical strategy
+3. Required data or model inputs
+4. Identification strategy, if empirical
+5. Robustness checks
+6. Main methodological limitations
+7. Practical next steps
+`;
+
+  addProjectMemory("Generated methodology advisor report");
+
+  sendPresetMessage(methodologyPrompt);
+}
   function sendPresetMessage(presetText: string) {
   if (!presetText.trim()) return;
 
