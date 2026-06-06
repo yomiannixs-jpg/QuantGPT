@@ -1132,6 +1132,47 @@ Next Focus: ${nextFocus}
 
   sendPresetMessage(reportPrompt);
 }
+  async function generatePublicationAdvisor() {
+  if (!activeProject) return;
+
+  const advisorPrompt = `
+Act as an academic publication advisor.
+
+Project: ${activeProject.name}
+
+Publication Readiness: ${publicationReadiness}%
+Project Status: ${projectCompletionStatus}
+Stage: ${projectStage}
+
+Files Uploaded: ${activeProjectFileCount}
+Notes Word Count: ${notesWordCount}
+Tasks: ${totalTasks}
+Completed Tasks: ${completedTasks}
+
+Checklist:
+${publicationChecklist
+  .map(
+    (item) =>
+      `- ${item.done ? "Complete" : "Missing"}: ${item.label}`
+  )
+  .join("\n")}
+
+Missing Actions:
+${missingActions.join("\n") || "None"}
+
+Provide:
+
+1. Publication readiness assessment
+2. Strengths
+3. Weaknesses
+4. Top 3 recommended actions
+5. Overall publication outlook
+`;
+
+  addProjectMemory("Generated publication advisor report");
+
+  sendPresetMessage(advisorPrompt);
+}
   function sendPresetMessage(presetText: string) {
   if (!presetText.trim()) return;
 
@@ -1566,6 +1607,12 @@ Next Focus: ${nextFocus}
   className="bg-orange-700 hover:bg-orange-800 rounded-xl px-4 py-2 text-sm font-semibold"
 >
   Generate Research Report
+  </button>
+  <button
+     onClick={generatePublicationAdvisor}
+     className="bg-pink-700 hover:bg-pink-800 rounded-xl px-4 py-2 text-sm font-semibold"
+  >
+     Publication Advisor
   </button>
         
   </div>
