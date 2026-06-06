@@ -787,6 +787,57 @@ const newProject: Project = {
   setMode("File Analysis");
   addProjectMemory(`Opened analysis for ${mostRecentFile.name}`);
 }
+  function appendProjectNote(text: string) {
+  if (!activeProjectId) return;
+
+  setProjectNotes((prev) => {
+    const existing = prev.find(
+      (note) => note.projectId === activeProjectId
+    );
+
+    const noteText = `
+
+${text}
+`;
+
+    if (existing) {
+      return prev.map((note) =>
+        note.projectId === activeProjectId
+          ? {
+              ...note,
+              content: `${note.content || ""}${noteText}`,
+            }
+          : note
+      );
+    }
+
+    return [
+      ...prev,
+      {
+        projectId: activeProjectId,
+        content: noteText,
+      },
+    ];
+  });
+
+  addProjectMemory(`Updated project notes: ${text.slice(0, 40)}`);
+}
+
+function addLiteratureReviewPlaceholder() {
+  appendProjectNote(
+    "Literature Review: Add key papers, theories, empirical findings, and research gaps here."
+  );
+}
+
+function addFinalDraftPlaceholder() {
+  appendProjectNote(
+    "Final Draft: Add the completed manuscript draft or final write-up here."
+  );
+}
+
+function createStarterTask() {
+  addProjectTask("Complete next major research milestone");
+}
   function clearProjectMemory() {
   if (!activeProjectId) return;
 
@@ -1869,6 +1920,41 @@ Next Focus: ${nextFocus}
       ))}
     </ol>
   )}
+</div>
+           <div className="border-b border-gray-800 p-4">
+  <h3 className="font-semibold mb-3">
+    One-Click Fixes
+  </h3>
+
+  <div className="flex flex-wrap gap-2">
+    <button
+      onClick={addLiteratureReviewPlaceholder}
+      className="bg-purple-700 hover:bg-purple-800 rounded-xl px-3 py-2 text-xs font-semibold"
+    >
+      Add Literature Review Placeholder
+    </button>
+
+    <button
+      onClick={addFinalDraftPlaceholder}
+      className="bg-blue-700 hover:bg-blue-800 rounded-xl px-3 py-2 text-xs font-semibold"
+    >
+      Add Final Draft Placeholder
+    </button>
+
+    <button
+      onClick={createStarterTask}
+      className="bg-green-700 hover:bg-green-800 rounded-xl px-3 py-2 text-xs font-semibold"
+    >
+      Create Starter Task
+    </button>
+
+    <button
+      onClick={generateResearchReport}
+      className="bg-orange-700 hover:bg-orange-800 rounded-xl px-3 py-2 text-xs font-semibold"
+    >
+      Generate Report
+    </button>
+  </div>
 </div>
            
       <div className="border-b border-gray-800 p-4">
