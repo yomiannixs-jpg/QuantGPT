@@ -92,7 +92,7 @@ type ChatSession = {
 
 const welcomeMessage: Message = {
   role: "assistant",
-  text: "Welcome to Quant GPT! I am an AI Engine Developed by YomiAnnixs. Feel free to inquire about topics in mathematics, finance, actuarial science, accounting, CFA, ICAN, economics, data analysis, research, coding, exam prep, Olympiads, or stock analysis.",
+  text: "Welcome to QuantGPT! I am an AI Engine Developed by YomiAnnixs. Feel free to inquire about topics in mathematics, finance, actuarial science, accounting, CFA, ICAN, economics, data analysis, research, coding, exam prep, Olympiads, or stock analysis.",
 };
 
 function createDefaultProject(): Project {
@@ -988,7 +988,7 @@ ${
 ### ${chat.title}
 
 ${chat.messages
-  .map((m) => `**${m.role === "user" ? "You" : "Quant GPT"}:** ${m.text}`)
+  .map((m) => `**${m.role === "user" ? "You" : "QuantGPT"}:** ${m.text}`)
   .join("\n\n")}
 `
         )
@@ -1014,7 +1014,7 @@ ${chat.messages
     if (!activeChat) return;
 
     const chatText = activeChat.messages
-      .map((m) => `## ${m.role === "user" ? "You" : "Quant GPT"}\n\n${m.text}`)
+      .map((m) => `## ${m.role === "user" ? "You" : "QuantGPT"}\n\n${m.text}`)
       .join("\n\n---\n\n");
 
     const blob = new Blob([chatText], { type: "text/markdown" });
@@ -1687,7 +1687,7 @@ Write in a professional academic style.
     <aside className="w-full lg:w-80 bg-gray-950 border-b lg:border-b-0 lg:border-r border-gray-800 p-4 lg:p-5">
   <div className="flex flex-col gap-4">
     <div>
-      <h1 className="text-3xl font-bold mb-2">Quant GPT</h1>
+      <h1 className="text-3xl font-bold mb-2">QuantGPT</h1>
       <p className="text-gray-400 text-sm mb-4">
         Research, learning, analytics and exam prep workspace.
       </p>
@@ -1890,7 +1890,7 @@ Write in a professional academic style.
          <section className="flex-1 flex flex-col min-h-[calc(100vh-230px)] lg:min-h-screen">
   <div className="border-b border-gray-800 p-4 lg:p-5">
       <h2 className="text-xl lg:text-2xl font-semibold mb-2">
-        {activeProject?.name || "Quant GPT"} / {activeChat?.title || mode}
+        {activeProject?.name || "QuantGPT"} / {activeChat?.title || mode}
       </h2>
 
       <p className="text-gray-400 text-xs lg:text-sm mb-4"> Mode: {mode} </p>
@@ -2623,7 +2623,7 @@ Write in a professional academic style.
             >
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm text-gray-300">
-                  {msg.role === "user" ? "You" : "Quant GPT"}
+                  {msg.role === "user" ? "You" : "QuantGPT"}
                 </p>
 
                 {msg.role === "assistant" && (
@@ -2669,7 +2669,7 @@ Write in a professional academic style.
 
           {loading && (
             <div className="w-full lg:max-w-4xl p-4 rounded-2xl bg-gray-900 border border-gray-800">
-              <p className="text-sm text-gray-300 mb-2">Quant GPT</p>
+              <p className="text-sm text-gray-300 mb-2">QuantGPT</p>
               <p>Thinking...</p>
             </div>
           )}
@@ -2771,7 +2771,7 @@ export default function Dashboard() {
     <Suspense
       fallback={
         <main className="min-h-screen bg-black text-white p-6">
-          Loading Quant GPT...
+          Loading QuantGPT...
         </main>
       }
     >
