@@ -930,6 +930,40 @@ Please structure the report with:
 `;
 
   addProjectMemory("Generated research progress report");
+    setProjectNotes((prev) => {
+  const existing = prev.find(
+    (note) => note.projectId === activeProjectId
+  );
+
+  const reportNote = `
+
+[${new Date().toLocaleString()}] Research report generated.
+Stage: ${projectStage}
+Risk: ${projectRisk}
+Health: ${projectHealth}%
+Progress: ${researchProgress}%
+Next Focus: ${nextFocus}
+`;
+
+  if (existing) {
+    return prev.map((note) =>
+      note.projectId === activeProjectId
+        ? {
+            ...note,
+            content: `${note.content || ""}${reportNote}`,
+          }
+        : note
+    );
+  }
+
+  return [
+    ...prev,
+    {
+      projectId: activeProjectId,
+      content: reportNote,
+    },
+  ];
+});
 
   sendPresetMessage(reportPrompt);
 }
