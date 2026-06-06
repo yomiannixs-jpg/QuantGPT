@@ -1343,6 +1343,52 @@ Generate a complete research proposal with:
 
   sendPresetMessage(proposalPrompt);
 }
+  async function generatePaperOutline() {
+  if (!activeProject) return;
+
+  const outlinePrompt = `
+Act as a senior academic editor.
+
+Using the project information below, generate a complete academic paper outline.
+
+Project: ${activeProject.name}
+Category: ${projectCategories[activeProject.category || "research"]}
+Stage: ${projectStage}
+Publication Readiness: ${publicationReadiness}%
+Project Status: ${projectCompletionStatus}
+Risk Level: ${projectRisk}
+
+Files Uploaded:
+${activeProjectFiles.map((f) => `- ${f.name}`).join("\n") || "No files uploaded"}
+
+Tasks:
+${activeProjectTasks
+  .map((t) => `- [${t.completed ? "x" : " "}] ${t.text}`)
+  .join("\n") || "No tasks"}
+
+Project Notes:
+${activeProjectNote?.content || "No notes"}
+
+Missing Actions:
+${missingActions.join("\n") || "None"}
+
+Generate a detailed paper outline with:
+1. Title
+2. Abstract structure
+3. Introduction outline
+4. Literature review structure
+5. Theory/model section
+6. Data and methodology section
+7. Results section
+8. Discussion section
+9. Conclusion section
+10. References plan
+`;
+
+  addProjectMemory("Generated paper outline");
+
+  sendPresetMessage(outlinePrompt);
+}
   function sendPresetMessage(presetText: string) {
   if (!presetText.trim()) return;
 
@@ -1811,6 +1857,13 @@ Generate a complete research proposal with:
   className="bg-lime-700 hover:bg-lime-800 rounded-xl px-4 py-2 text-sm font-semibold"
 >
   Research Proposal
+</button>
+
+      <button
+  onClick={generatePaperOutline}
+  className="bg-emerald-700 hover:bg-emerald-800 rounded-xl px-4 py-2 text-sm font-semibold"
+>
+  Paper Outline
 </button>
         
   </div>
