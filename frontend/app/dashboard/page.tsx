@@ -361,6 +361,36 @@ const projectCompletionBadgeClass =
     : publicationReadiness >= 40
     ? "bg-yellow-700"
     : "bg-red-700";
+  const generatedAssets = [
+  {
+    label: "Research Report",
+    done:
+      activeProjectMemory?.items?.some((item) =>
+        item.text.toLowerCase().includes("research progress report")
+      ) || false,
+  },
+  {
+    label: "Research Proposal",
+    done:
+      activeProjectMemory?.items?.some((item) =>
+        item.text.toLowerCase().includes("research proposal")
+      ) || false,
+  },
+  {
+    label: "Paper Outline",
+    done:
+      activeProjectMemory?.items?.some((item) =>
+        item.text.toLowerCase().includes("paper outline")
+      ) || false,
+  },
+  {
+    label: "Starter Paper Sections",
+    done:
+      activeProjectMemory?.items?.some((item) =>
+        item.text.toLowerCase().includes("starter paper sections")
+      ) || false,
+  },
+];
   
   useEffect(() => {
     const urlMode = searchParams.get("mode");
@@ -2333,6 +2363,26 @@ Write in a professional academic style.
     </button>
   </div>
 </div>
+    
+           <div className="border-b border-gray-800 p-4">
+  <h3 className="font-semibold mb-3">
+    Generated Research Assets
+  </h3>
+
+  <div className="grid md:grid-cols-4 gap-3 text-sm">
+    {generatedAssets.map((asset) => (
+      <div
+        key={asset.label}
+        className="bg-gray-900 border border-gray-800 rounded-xl p-3 flex items-center gap-2"
+      >
+        <span>{asset.done ? "✅" : "❌"}</span>
+        <span className={asset.done ? "text-gray-200" : "text-gray-500"}>
+          {asset.label}
+        </span>
+      </div>
+    ))}
+  </div>
+</div>
            
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold mb-2">
@@ -2666,7 +2716,7 @@ Write in a professional academic style.
                   target.style.height = "auto";
                 }
               }}
-              placeholder="Ask Quant GPT anything..."
+              placeholder="Ask QuantGPT anything..."
               rows={1}
               className="flex-1 w-full bg-transparent text-white placeholder:text-gray-400 outline-none resize-none px-2 py-2 min-h-[40px] max-h-[200px] overflow-y-auto"
             />
