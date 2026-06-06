@@ -300,7 +300,40 @@ const overallReadiness = Math.round(
   taskReadiness +
   memoryReadiness
 );
-  
+  const hasFiles = activeProjectFileCount > 0;
+const hasNotes = notesWordCount >= 100;
+const hasTasks = totalTasks > 0;
+const hasCompletedTasks = completedTasks > 0;
+const hasResearchReport =
+  activeProjectMemory?.items?.some((item) =>
+    item.text.toLowerCase().includes("research progress report")
+  ) || false;
+
+const hasLiteratureReview =
+  activeProjectNote?.content
+    ?.toLowerCase()
+    .includes("literature review") || false;
+
+const hasFinalDraft =
+  activeProjectNote?.content
+    ?.toLowerCase()
+    .includes("final draft") || false;
+
+const publicationChecklist = [
+  { label: "Files Uploaded", done: hasFiles },
+  { label: "Notes Written", done: hasNotes },
+  { label: "Tasks Created", done: hasTasks },
+  { label: "At Least One Task Completed", done: hasCompletedTasks },
+  { label: "Research Report Generated", done: hasResearchReport },
+  { label: "Literature Review Mentioned", done: hasLiteratureReview },
+  { label: "Final Draft Mentioned", done: hasFinalDraft },
+];
+
+const publicationReadiness = Math.round(
+  (publicationChecklist.filter((item) => item.done).length /
+    publicationChecklist.length) *
+    100
+);
   useEffect(() => {
     const urlMode = searchParams.get("mode");
     const savedProjects = localStorage.getItem("quant-gpt-projects");
@@ -1769,6 +1802,42 @@ Next Focus: ${nextFocus}
       <div className="font-semibold">
         {overallReadiness}%
       </div>
+    </div>
+  </div>
+</div>
+
+           <div className="border-b border-gray-800 p-4">
+  <h3 className="font-semibold mb-3">
+    Publication Readiness Checklist
+  </h3>
+
+  <div className="grid md:grid-cols-2 gap-3 text-sm">
+    {publicationChecklist.map((item) => (
+      <div
+        key={item.label}
+        className="bg-gray-900 border border-gray-800 rounded-xl p-3 flex items-center gap-2"
+      >
+        <span>
+          {item.done ? "✅" : "❌"}
+        </span>
+
+        <span className={item.done ? "text-gray-200" : "text-gray-500"}>
+          {item.label}
+        </span>
+      </div>
+    ))}
+  </div>
+
+  <div className="mt-4">
+    <div className="w-full bg-gray-800 rounded-full h-3">
+      <div
+        className="bg-green-600 h-3 rounded-full"
+        style={{ width: `${publicationReadiness}%` }}
+      />
+    </div>
+
+    <div className="text-xs text-gray-400 mt-2">
+      Publication Readiness: {publicationReadiness}%
     </div>
   </div>
 </div>
