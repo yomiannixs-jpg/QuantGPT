@@ -890,6 +890,49 @@ ${chat.messages
   `;   
   sendPresetMessage(summaryPrompt);
 }
+  async function generateResearchReport() {
+  if (!activeProject || !activeChat) return;
+
+  const reportPrompt = `
+Generate a professional research progress report for this project.
+
+Project: ${activeProject.name}
+Category: ${projectCategories[activeProject.category || "research"]}
+Stage: ${projectStage}
+Risk Level: ${projectRisk}
+Next Focus: ${nextFocus}
+Health Score: ${projectHealth}%
+Research Progress: ${researchProgress}%
+
+Files:
+${activeProjectFiles.map((f) => `- ${f.name}`).join("\n") || "No files uploaded"}
+
+Tasks:
+${activeProjectTasks
+  .map((t) => `- [${t.completed ? "x" : " "}] ${t.text}`)
+  .join("\n") || "No tasks"}
+
+Notes:
+${activeProjectNote?.content || "No notes"}
+
+Timeline:
+${activeProjectMemory?.items
+  ?.map((m) => `- ${new Date(m.createdAt).toLocaleString()}: ${m.text}`)
+  .join("\n") || "No timeline entries"}
+
+Please structure the report with:
+1. Executive summary
+2. Current project status
+3. Completed work
+4. Outstanding work
+5. Risks and bottlenecks
+6. Recommended next steps
+`;
+
+  addProjectMemory("Generated research progress report");
+
+  sendPresetMessage(reportPrompt);
+}
   function sendPresetMessage(presetText: string) {
   if (!presetText.trim()) return;
 
