@@ -1426,7 +1426,9 @@ Write in a professional academic style.
 `;
 
   addProjectMemory("Generated starter paper sections");
-
+  appendProjectNote(
+  `[${new Date().toLocaleString()}] Starter paper sections generated. Review the chat output and refine the abstract, introduction, literature review, methodology, expected results, and conclusion.`
+ );
   sendPresetMessage(sectionPrompt);
 }
   function sendPresetMessage(presetText: string) {
