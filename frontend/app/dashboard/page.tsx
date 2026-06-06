@@ -343,6 +343,24 @@ const publicationReadiness = Math.round(
   !hasLiteratureReview ? "Add a literature review note." : null,
   !hasFinalDraft ? "Add or mention a final draft." : null,
 ].filter(Boolean) as string[];
+
+  const projectCompletionStatus =
+  publicationReadiness >= 90
+    ? "Publication Ready"
+    : publicationReadiness >= 70
+    ? "Near Complete"
+    : publicationReadiness >= 40
+    ? "In Progress"
+    : "Early Stage";
+
+const projectCompletionBadgeClass =
+  publicationReadiness >= 90
+    ? "bg-green-700"
+    : publicationReadiness >= 70
+    ? "bg-blue-700"
+    : publicationReadiness >= 40
+    ? "bg-yellow-700"
+    : "bg-red-700";
   
   useEffect(() => {
     const urlMode = searchParams.get("mode");
@@ -1527,7 +1545,15 @@ Next Focus: ${nextFocus}
   >
     Generate Project Summary
   </button>
-
+        
+      <div className="mb-4">
+  <span
+    className={`${projectCompletionBadgeClass} rounded-full px-4 py-2 text-xs font-semibold`}
+  >
+    Project Status: {projectCompletionStatus}
+  </span>
+</div>
+        
   <button
     onClick={suggestNextTasks}
     className="bg-green-700 hover:bg-green-800 rounded-xl px-4 py-2 text-sm font-semibold"
