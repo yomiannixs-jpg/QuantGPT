@@ -1255,12 +1255,7 @@ Please produce a practical revision plan with:
 
   sendPresetMessage(revisionPrompt);
 }
-  <button
-  onClick={generateMethodologyAdvisor}
-  className="bg-cyan-700 hover:bg-cyan-800 rounded-xl px-4 py-2 text-sm font-semibold"
->
-  Methodology Advisor
-</button>
+  
   async function generateMethodologyAdvisor() {
   if (!activeProject) return;
 
@@ -1756,6 +1751,13 @@ Please provide:
   className="bg-teal-700 hover:bg-teal-800 rounded-xl px-4 py-2 text-sm font-semibold"
 >
   Revision Plan
+</button>
+
+  <button
+   onClick={generateMethodologyAdvisor}
+   className="bg-cyan-700 hover:bg-cyan-800 rounded-xl px-4 py-2 text-sm font-semibold"
+>
+  Methodology Advisor
 </button>
         
   </div>
