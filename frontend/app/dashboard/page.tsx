@@ -1389,6 +1389,46 @@ Generate a detailed paper outline with:
 
   sendPresetMessage(outlinePrompt);
 }
+  async function generatePaperSections() {
+  if (!activeProject) return;
+
+  const sectionPrompt = `
+Act as a senior academic writing mentor.
+
+Using the project information below, draft starter sections for an academic paper.
+
+Project: ${activeProject.name}
+Category: ${projectCategories[activeProject.category || "research"]}
+Stage: ${projectStage}
+Publication Readiness: ${publicationReadiness}%
+Project Status: ${projectCompletionStatus}
+
+Files Uploaded:
+${activeProjectFiles.map((f) => `- ${f.name}`).join("\n") || "No files uploaded"}
+
+Project Notes:
+${activeProjectNote?.content || "No notes"}
+
+Tasks:
+${activeProjectTasks
+  .map((t) => `- [${t.completed ? "x" : " "}] ${t.text}`)
+  .join("\n") || "No tasks"}
+
+Draft the following starter sections:
+1. Abstract
+2. Introduction
+3. Literature Review
+4. Methodology
+5. Expected Results
+6. Conclusion
+
+Write in a professional academic style.
+`;
+
+  addProjectMemory("Generated starter paper sections");
+
+  sendPresetMessage(sectionPrompt);
+}
   function sendPresetMessage(presetText: string) {
   if (!presetText.trim()) return;
 
@@ -1859,11 +1899,18 @@ Generate a detailed paper outline with:
   Research Proposal
 </button>
 
-      <button
+ <button
   onClick={generatePaperOutline}
   className="bg-emerald-700 hover:bg-emerald-800 rounded-xl px-4 py-2 text-sm font-semibold"
 >
   Paper Outline
+</button>
+
+        <button
+  onClick={generatePaperSections}
+  className="bg-sky-700 hover:bg-sky-800 rounded-xl px-4 py-2 text-sm font-semibold"
+>
+  Draft Paper Sections
 </button>
         
   </div>
