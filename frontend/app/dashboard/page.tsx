@@ -240,13 +240,40 @@ const nextFocus =
   const latestFileType =
   mostRecentFile?.type || "None";
 
-const latestFileUploadedAt =
-  mostRecentFile?.uploadedAt
+  const latestFileUploadedAt =
+   mostRecentFile?.uploadedAt
     ? new Date(mostRecentFile.uploadedAt).toLocaleString()
     : "None";
 
 const latestFileHasAnalysis =
   mostRecentFile?.analysis ? "Yes" : "No";
+
+  const aiKeyRisk =
+  projectRisk === "High"
+    ? "Project falling behind schedule"
+    : projectRisk === "Medium"
+    ? "Open tasks need attention"
+    : "No major risks detected";
+
+const aiRecommendedAction =
+  openTasks > 0
+    ? "Complete open tasks"
+    : activeProjectFileCount === 0
+    ? "Upload source files"
+    : notesWordCount < 100
+    ? "Expand project notes"
+    : "Generate research report";
+
+const aiConfidence = Math.min(
+  100,
+  Math.max(
+    50,
+    Math.round(
+      projectHealth * 0.6 +
+      researchProgress * 0.4
+    )
+  )
+);
   
   useEffect(() => {
     const urlMode = searchParams.get("mode");
@@ -258,9 +285,9 @@ const latestFileHasAnalysis =
     const savedProjectTasks = localStorage.getItem("quant-gpt-project-tasks");
     const savedActiveProjectId = localStorage.getItem("quant-gpt-active-project-id");
     const savedActiveChatId = localStorage.getItem("quant-ai-active-chat-id");
-    
     let loadedProjects: Project[] = savedProjects
-  ? JSON.parse(savedProjects).map((p: any) => ({
+  ? JSON.parse(savedProjects).map((p: any) => 
+    ({
       ...p,
       color: p.color || "purple",
       category: p.category || "research",
@@ -1628,6 +1655,54 @@ Next Focus: ${nextFocus}
   </button>
 </div>
 </div>
+        
+        <div className="border-b border-gray-800 p-4">
+  <h3 className="font-semibold mb-3">
+    AI Research Center
+  </h3>
+
+  <div className="grid md:grid-cols-4 gap-4">
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400 text-sm">
+        Current Stage
+      </div>
+
+      <div className="font-semibold">
+        {projectStage}
+      </div>
+    </div>
+
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400 text-sm">
+        Key Risk
+      </div>
+
+      <div className="font-semibold">
+        {aiKeyRisk}
+      </div>
+    </div>
+
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400 text-sm">
+        Recommended Action
+      </div>
+
+      <div className="font-semibold">
+        {aiRecommendedAction}
+      </div>
+    </div>
+
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400 text-sm">
+        AI Confidence
+      </div>
+
+      <div className="font-semibold">
+        {aiConfidence}%
+      </div>
+    </div>
+  </div>
+</div>   
            
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold mb-2">
