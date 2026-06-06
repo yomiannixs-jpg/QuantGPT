@@ -334,6 +334,16 @@ const publicationReadiness = Math.round(
     publicationChecklist.length) *
     100
 );
+  const missingActions = [
+  !hasFiles ? "Upload at least one research file or dataset." : null,
+  !hasNotes ? "Write at least 100 words in Project Notes." : null,
+  !hasTasks ? "Create at least one project task." : null,
+  !hasCompletedTasks ? "Complete at least one task." : null,
+  !hasResearchReport ? "Generate a research progress report." : null,
+  !hasLiteratureReview ? "Add a literature review note." : null,
+  !hasFinalDraft ? "Add or mention a final draft." : null,
+].filter(Boolean) as string[];
+  
   useEffect(() => {
     const urlMode = searchParams.get("mode");
     const savedProjects = localStorage.getItem("quant-gpt-projects");
@@ -1840,6 +1850,25 @@ Next Focus: ${nextFocus}
       Publication Readiness: {publicationReadiness}%
     </div>
   </div>
+</div>
+        <div className="border-b border-gray-800 p-4">
+  <h3 className="font-semibold mb-3">
+    Missing Items Action Plan
+  </h3>
+
+  {missingActions.length === 0 ? (
+    <p className="text-sm text-green-400">
+      All major readiness items are complete.
+    </p>
+  ) : (
+    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-300">
+      {missingActions.map((action, index) => (
+        <li key={index}>
+          {action}
+        </li>
+      ))}
+    </ol>
+  )}
 </div>
            
       <div className="border-b border-gray-800 p-4">
