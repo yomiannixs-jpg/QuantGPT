@@ -1340,7 +1340,9 @@ Generate a complete research proposal with:
 `;
 
   addProjectMemory("Generated research proposal");
-
+  appendProjectNote(
+  `[${new Date().toLocaleString()}] Research proposal generated. Review the chat output and refine the title, research problem, motivation, research questions, literature gap, methodology, contribution, timeline, and next steps.`
+);
   sendPresetMessage(proposalPrompt);
 }
   async function generatePaperOutline() {
@@ -1386,7 +1388,9 @@ Generate a detailed paper outline with:
 `;
 
   addProjectMemory("Generated paper outline");
-
+  appendProjectNote(
+  `[${new Date().toLocaleString()}] Paper outline generated. Review the chat output and use it to structure the title, abstract, introduction, literature review, theory/model, methodology, results, discussion, conclusion, and references plan.`
+);
   sendPresetMessage(outlinePrompt);
 }
   async function generatePaperSections() {
