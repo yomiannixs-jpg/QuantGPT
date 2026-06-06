@@ -1297,6 +1297,52 @@ Please provide:
 
   sendPresetMessage(methodologyPrompt);
 }
+  async function generateResearchProposal() {
+  if (!activeProject) return;
+
+  const proposalPrompt = `
+Act as a senior academic research supervisor.
+
+Using the project information below, generate a structured research proposal.
+
+Project: ${activeProject.name}
+Category: ${projectCategories[activeProject.category || "research"]}
+Stage: ${projectStage}
+Publication Readiness: ${publicationReadiness}%
+Project Status: ${projectCompletionStatus}
+Risk Level: ${projectRisk}
+
+Files Uploaded:
+${activeProjectFiles.map((f) => `- ${f.name}`).join("\n") || "No files uploaded"}
+
+Tasks:
+${activeProjectTasks
+  .map((t) => `- [${t.completed ? "x" : " "}] ${t.text}`)
+  .join("\n") || "No tasks"}
+
+Project Notes:
+${activeProjectNote?.content || "No notes"}
+
+Missing Actions:
+${missingActions.join("\n") || "None"}
+
+Generate a complete research proposal with:
+1. Proposed title
+2. Research problem
+3. Motivation
+4. Research questions
+5. Literature gap
+6. Proposed methodology
+7. Data or theoretical model plan
+8. Expected contribution
+9. Timeline
+10. Next steps
+`;
+
+  addProjectMemory("Generated research proposal");
+
+  sendPresetMessage(proposalPrompt);
+}
   function sendPresetMessage(presetText: string) {
   if (!presetText.trim()) return;
 
@@ -1758,6 +1804,13 @@ Please provide:
    className="bg-cyan-700 hover:bg-cyan-800 rounded-xl px-4 py-2 text-sm font-semibold"
 >
   Methodology Advisor
+</button>
+
+ <button
+  onClick={generateResearchProposal}
+  className="bg-lime-700 hover:bg-lime-800 rounded-xl px-4 py-2 text-sm font-semibold"
+>
+  Research Proposal
 </button>
         
   </div>
