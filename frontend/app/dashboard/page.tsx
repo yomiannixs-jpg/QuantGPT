@@ -1212,6 +1212,49 @@ Please provide:
 
   sendPresetMessage(journalPrompt);
 }
+  async function generateRevisionPlan() {
+  if (!activeProject) return;
+
+  const revisionPrompt = `
+Act as a senior academic editor and research supervisor.
+
+Project: ${activeProject.name}
+Category: ${projectCategories[activeProject.category || "research"]}
+Stage: ${projectStage}
+Publication Readiness: ${publicationReadiness}%
+Project Status: ${projectCompletionStatus}
+Risk Level: ${projectRisk}
+Next Focus: ${nextFocus}
+
+Files Uploaded: ${activeProjectFileCount}
+Notes Word Count: ${notesWordCount}
+Tasks: ${totalTasks}
+Completed Tasks: ${completedTasks}
+
+Checklist:
+${publicationChecklist
+  .map((item) => `- ${item.done ? "Complete" : "Missing"}: ${item.label}`)
+  .join("\n")}
+
+Missing Actions:
+${missingActions.join("\n") || "None"}
+
+Project Notes:
+${activeProjectNote?.content || "No notes"}
+
+Please produce a practical revision plan with:
+1. Highest-priority revisions
+2. Weakest sections
+3. Missing evidence/data
+4. Missing theory/literature components
+5. Submission-readiness blockers
+6. Ordered 7-day revision plan
+`;
+
+  addProjectMemory("Generated revision plan");
+
+  sendPresetMessage(revisionPrompt);
+}
   function sendPresetMessage(presetText: string) {
   if (!presetText.trim()) return;
 
@@ -1659,6 +1702,13 @@ Please provide:
   className="bg-indigo-700 hover:bg-indigo-800 rounded-xl px-4 py-2 text-sm font-semibold"
 >
   Journal Fit Advisor
+</button>
+        
+ <button
+  onClick={generateRevisionPlan}
+  className="bg-teal-700 hover:bg-teal-800 rounded-xl px-4 py-2 text-sm font-semibold"
+>
+  Revision Plan
 </button>
         
   </div>
