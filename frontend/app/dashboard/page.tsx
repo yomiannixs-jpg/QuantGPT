@@ -274,6 +274,32 @@ const aiConfidence = Math.min(
     )
   )
 );
+const dataReadiness = Math.min(
+  25,
+  activeProjectFileCount * 10
+);
+
+const notesReadiness = Math.min(
+  25,
+  Math.round(notesWordCount / 20)
+);
+
+const taskReadiness = Math.min(
+  25,
+  researchProgress / 4
+);
+
+const memoryReadiness = Math.min(
+  25,
+  memoryEntries * 5
+);
+
+const overallReadiness = Math.round(
+  dataReadiness +
+  notesReadiness +
+  taskReadiness +
+  memoryReadiness
+);
   
   useEffect(() => {
     const urlMode = searchParams.get("mode");
@@ -1656,10 +1682,10 @@ Next Focus: ${nextFocus}
 </div>
 </div>
         
-        <div className="border-b border-gray-800 p-4">
-  <h3 className="font-semibold mb-3">
-    AI Research Center
-  </h3>
+      <div className="border-b border-gray-800 p-4">
+        <h3 className="font-semibold mb-3">
+        AI Research Center
+       </h3>
 
   <div className="grid md:grid-cols-4 gap-4">
     <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
@@ -1703,6 +1729,49 @@ Next Focus: ${nextFocus}
     </div>
   </div>
 </div>   
+
+           <div className="border-b border-gray-800 p-4">
+  <h3 className="font-semibold mb-3">
+    Project Readiness
+  </h3>
+
+  <div className="grid md:grid-cols-5 gap-4 text-sm">
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400">Data</div>
+      <div className="font-semibold">
+        {dataReadiness}/25
+      </div>
+    </div>
+
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400">Notes</div>
+      <div className="font-semibold">
+        {notesReadiness}/25
+      </div>
+    </div>
+
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400">Tasks</div>
+      <div className="font-semibold">
+        {Math.round(taskReadiness)}/25
+      </div>
+    </div>
+
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400">Memory</div>
+      <div className="font-semibold">
+        {memoryReadiness}/25
+      </div>
+    </div>
+
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-3">
+      <div className="text-gray-400">Overall</div>
+      <div className="font-semibold">
+        {overallReadiness}%
+      </div>
+    </div>
+  </div>
+</div>
            
       <div className="border-b border-gray-800 p-4">
         <h3 className="font-semibold mb-2">
