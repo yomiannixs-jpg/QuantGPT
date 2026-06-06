@@ -1173,6 +1173,45 @@ Provide:
 
   sendPresetMessage(advisorPrompt);
 }
+  async function generateJournalFitAdvisor() {
+  if (!activeProject) return;
+
+  const journalPrompt = `
+Act as a journal-fit advisor for an academic research project.
+
+Project: ${activeProject.name}
+Category: ${projectCategories[activeProject.category || "research"]}
+Stage: ${projectStage}
+Publication Readiness: ${publicationReadiness}%
+Project Status: ${projectCompletionStatus}
+Risk Level: ${projectRisk}
+
+Files Uploaded: ${activeProjectFileCount}
+Notes Word Count: ${notesWordCount}
+Tasks: ${totalTasks}
+Completed Tasks: ${completedTasks}
+
+Checklist:
+${publicationChecklist
+  .map((item) => `- ${item.done ? "Complete" : "Missing"}: ${item.label}`)
+  .join("\n")}
+
+Missing Actions:
+${missingActions.join("\n") || "None"}
+
+Please provide:
+1. Best journal category or outlet type
+2. Realistic target level
+3. Why this project fits that level
+4. Main weaknesses before submission
+5. Submission readiness verdict
+6. Concrete next steps before journal submission
+`;
+
+  addProjectMemory("Generated journal fit advisor report");
+
+  sendPresetMessage(journalPrompt);
+}
   function sendPresetMessage(presetText: string) {
   if (!presetText.trim()) return;
 
@@ -1614,6 +1653,13 @@ Provide:
   >
      Publication Advisor
   </button>
+
+        <button
+  onClick={generateJournalFitAdvisor}
+  className="bg-indigo-700 hover:bg-indigo-800 rounded-xl px-4 py-2 text-sm font-semibold"
+>
+  Journal Fit Advisor
+</button>
         
   </div>
     <div className="grid md:grid-cols-8 gap-4">
