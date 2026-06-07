@@ -1132,6 +1132,7 @@ Please structure the report with:
 `;
 
   addProjectMemory("Generated research progress report");
+    saveGeneratedAsset("Research Report");
     setProjectNotes((prev) => {
   const existing = prev.find(
     (note) => note.projectId === activeProjectId
@@ -1377,6 +1378,7 @@ Generate a complete research proposal with:
 `;
 
   addProjectMemory("Generated research proposal");
+    saveGeneratedAsset("Research Proposal");
   appendProjectNote(
   `[${new Date().toLocaleString()}] Research proposal generated. Review the chat output and refine the title, research problem, motivation, research questions, literature gap, methodology, contribution, timeline, and next steps.`
 );
@@ -1425,6 +1427,7 @@ Generate a detailed paper outline with:
 `;
 
   addProjectMemory("Generated paper outline");
+    saveGeneratedAsset("Paper Outline");
   appendProjectNote(
   `[${new Date().toLocaleString()}] Paper outline generated. Review the chat output and use it to structure the title, abstract, introduction, literature review, theory/model, methodology, results, discussion, conclusion, and references plan.`
 );
@@ -1467,6 +1470,7 @@ Write in a professional academic style.
 `;
 
   addProjectMemory("Generated starter paper sections");
+    saveGeneratedAsset("Starter Paper Sections");
   appendProjectNote(
   `[${new Date().toLocaleString()}] Starter paper sections generated. Review the chat output and refine the abstract, introduction, literature review, methodology, expected results, and conclusion.`
  );
@@ -1494,6 +1498,13 @@ Write in a professional academic style.
   }
 
   alert("All generated research assets are complete.");
+}
+  function saveGeneratedAsset(assetName: string) {
+  appendProjectNote(
+    `[${new Date().toLocaleString()}] Asset saved: ${assetName}.`
+  );
+
+  addProjectMemory(`Saved asset: ${assetName}`);
 }
  function exportResearchAsset(assetName: string) {
   const matchingChat = projectChats.find((chat) =>
