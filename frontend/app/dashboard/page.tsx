@@ -400,10 +400,15 @@ const projectCompletionBadgeClass =
   activeProjectMemory?.items?.filter((item) =>
     item.text.toLowerCase().includes("saved asset:")
   ).length || 0;
-   activeProjectMemory?.items?.filter((item) =>
+  
   const researchAssetLibrary = generatedAssets.filter(
   (asset) => asset.done
 );
+  const assetStatusText =
+  savedAssetsCount >= generatedAssets.length
+    ? "All core research assets are saved."
+    : `${savedAssetsCount} of ${generatedAssets.length} assets saved.`;
+  
   useEffect(() => {
     const urlMode = searchParams.get("mode");
     const savedProjects = localStorage.getItem("quant-gpt-projects");
