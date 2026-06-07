@@ -396,6 +396,9 @@ const projectCompletionBadgeClass =
     generatedAssets.length) *
     100
 );
+  const researchAssetLibrary = generatedAssets.filter(
+  (asset) => asset.done
+);
   useEffect(() => {
     const urlMode = searchParams.get("mode");
     const savedProjects = localStorage.getItem("quant-gpt-projects");
@@ -2431,6 +2434,34 @@ Write in a professional academic style.
     Generate Missing Assets
   </button>
 </div>
+</div>
+           <div className="border-b border-gray-800 p-4">
+  <h3 className="font-semibold mb-3">
+    Research Asset Library
+  </h3>
+
+  {researchAssetLibrary.length === 0 ? (
+    <p className="text-sm text-gray-500">
+      No generated research assets yet.
+    </p>
+  ) : (
+    <div className="grid md:grid-cols-4 gap-3 text-sm">
+      {researchAssetLibrary.map((asset) => (
+        <div
+          key={asset.label}
+          className="bg-gray-900 border border-gray-800 rounded-xl p-3"
+        >
+          <div className="font-semibold">
+            📄 {asset.label}
+          </div>
+
+          <div className="text-xs text-gray-500 mt-1">
+            Generated and stored in project memory.
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
 </div>
            
       <div className="border-b border-gray-800 p-4">
