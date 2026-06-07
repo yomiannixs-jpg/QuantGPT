@@ -400,6 +400,7 @@ const projectCompletionBadgeClass =
   activeProjectMemory?.items?.filter((item) =>
     item.text.toLowerCase().includes("saved asset:")
   ).length || 0;
+   activeProjectMemory?.items?.filter((item) =>
   const researchAssetLibrary = generatedAssets.filter(
   (asset) => asset.done
 );
@@ -2506,7 +2507,9 @@ ${
   <h3 className="font-semibold mb-3">
     Research Asset Library
   </h3>
-
+<p className="text-xs text-gray-400 mb-3">
+  {assetStatusText}
+</p>
   {researchAssetLibrary.length === 0 ? (
     <p className="text-sm text-gray-500">
       No generated research assets yet.
