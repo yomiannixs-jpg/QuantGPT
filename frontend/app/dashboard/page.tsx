@@ -396,6 +396,10 @@ const projectCompletionBadgeClass =
     generatedAssets.length) *
     100
 );
+  const savedAssetsCount =
+  activeProjectMemory?.items?.filter((item) =>
+    item.text.toLowerCase().includes("saved asset:")
+  ).length || 0;
   const researchAssetLibrary = generatedAssets.filter(
   (asset) => asset.done
 );
@@ -2125,6 +2129,12 @@ ${
   <div className="text-gray-400 text-sm">Next Focus</div>
   <div className="text-sm font-bold">
     {nextFocus}
+  </div>
+</div>
+      <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+  <div className="text-gray-400 text-sm">Saved Assets</div>
+  <div className="text-3xl font-bold">
+    {savedAssetsCount}/{generatedAssets.length}
   </div>
 </div>
       
