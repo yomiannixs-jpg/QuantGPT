@@ -391,7 +391,11 @@ const projectCompletionBadgeClass =
       ) || false,
   },
 ];
-  
+  const generatedAssetsCompletion = Math.round(
+  (generatedAssets.filter((asset) => asset.done).length /
+    generatedAssets.length) *
+    100
+);
   useEffect(() => {
     const urlMode = searchParams.get("mode");
     const savedProjects = localStorage.getItem("quant-gpt-projects");
@@ -2405,6 +2409,31 @@ Write in a professional academic style.
       </div>
     ))}
   </div>
+      <div className="mt-4">
+  <div className="w-full bg-gray-800 rounded-full h-3">
+    <div
+      className="bg-lime-600 h-3 rounded-full"
+      style={{ width: `${generatedAssetsCompletion}%` }}
+    />
+  </div>
+
+  <div className="text-xs text-gray-400 mt-2">
+    Generated Assets Completion: {generatedAssetsCompletion}%
+  </div>
+</div> 
+
+             <div className="mt-4">
+  <div className="w-full bg-gray-800 rounded-full h-3">
+    <div
+      className="bg-lime-600 h-3 rounded-full"
+      style={{ width: `${generatedAssetsCompletion}%` }}
+    />
+  </div>
+
+  <div className="text-xs text-gray-400 mt-2">
+    Generated Assets Completion: {generatedAssetsCompletion}%
+  </div>
+</div>
              
    <div className="flex flex-wrap gap-2 mt-4">
   <button
