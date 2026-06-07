@@ -2409,13 +2409,6 @@ Write in a professional academic style.
       </div>
     ))}
   </div>
-      <div className="mt-4">
-  <div className="w-full bg-gray-800 rounded-full h-3">
-    <div
-      className="bg-lime-600 h-3 rounded-full"
-      style={{ width: `${generatedAssetsCompletion}%` }}
-    />
-  </div>
 
   <div className="text-xs text-gray-400 mt-2">
     Generated Assets Completion: {generatedAssetsCompletion}%
